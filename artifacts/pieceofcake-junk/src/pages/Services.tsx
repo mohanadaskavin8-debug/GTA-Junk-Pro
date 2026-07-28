@@ -34,7 +34,7 @@ export default function Services() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-6xl font-black font-display text-white mb-4"
           >
-            Clear Transparent Pricing
+            Our Services
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ export default function Services() {
             transition={{ delay: 0.1 }}
             className="text-xl text-white/90 max-w-2xl mx-auto"
           >
-            No hidden fees. No surprises. Just straightforward pricing based on volume and item type.
+            Fast, reliable, and eco-friendly junk removal across the Greater Toronto Area.
           </motion.p>
         </div>
       </section>
@@ -79,13 +79,9 @@ export default function Services() {
                   <h3 className="text-2xl font-bold font-display mb-3">{service.name}</h3>
                   <p className="text-muted-foreground mb-8 flex-1">{service.description}</p>
                   
-                  <div className="flex items-center justify-between pt-6 border-t">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{service.unit}</span>
-                      <span className="text-3xl font-black text-primary">${service.price}</span>
-                    </div>
+                  <div className="pt-6 border-t">
                     <Link href={`/book?service=${service.id}`}>
-                      <Button variant="outline" className="rounded-full">Book</Button>
+                      <Button variant="outline" className="rounded-full w-full">Book This Service</Button>
                     </Link>
                   </div>
                 </motion.div>
