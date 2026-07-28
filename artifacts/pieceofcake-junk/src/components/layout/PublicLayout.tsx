@@ -1,13 +1,19 @@
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { Cake, Menu, X, ArrowRight, Phone } from "lucide-react";
+import { Cake, Menu, X, ArrowRight, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGetPublicSettings } from "@workspace/api-client-react";
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: settings } = useGetPublicSettings();
+
+  const phone = settings?.businessPhone ?? "437-775-9626";
+  const email = settings?.businessEmail ?? "payments@pieceofcakejunk.com";
+  const serviceArea = settings?.serviceArea ?? "Greater Toronto Area";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,10 +39,10 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col font-sans bg-background text-foreground overflow-x-hidden selection:bg-secondary selection:text-secondary-foreground">
       {/* Top Bar - Very thin info bar */}
       <div className="hidden md:flex bg-primary text-primary-foreground text-xs py-1.5 px-6 justify-between items-center z-50 relative">
-        <p>Serving the Greater Toronto Area with 5.0 Star Rated Service</p>
+        <p>Serving the {serviceArea} with 5.0 Star Rated Service</p>
         <div className="flex gap-4">
-          <a href="mailto:payments@pieceofcakejunk.com" className="hover:text-secondary transition-colors">
-            payments@pieceofcakejunk.com
+          <a href={`mailto:${email}`} className="hover:text-secondary transition-colors">
+            {email}
           </a>
         </div>
       </div>
@@ -77,11 +83,11 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             ))}
             
             <div className="flex items-center gap-4 ml-4">
-              <a href="tel:437-775-9626" className="flex items-center gap-2 text-sm font-bold group">
+              <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm font-bold group">
                 <div className="bg-secondary/20 p-2 rounded-full text-secondary-foreground group-hover:bg-secondary transition-colors">
                   <Phone className="w-4 h-4" />
                 </div>
-                <span className="hidden lg:inline">437-775-9626</span>
+                <span className="hidden lg:inline">{phone}</span>
               </a>
               <Link href="/book">
                 <Button className="rounded-full shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all group font-bold">
@@ -121,9 +127,9 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               ))}
             </nav>
             <div className="mt-8 flex flex-col gap-4">
-              <a href="tel:437-775-9626" className="flex items-center gap-3 p-4 rounded-xl bg-secondary/10 text-secondary-foreground font-bold text-lg justify-center border border-secondary/20">
+              <a href={`tel:${phone}`} className="flex items-center gap-3 p-4 rounded-xl bg-secondary/10 text-secondary-foreground font-bold text-lg justify-center border border-secondary/20">
                 <Phone className="w-5 h-5" />
-                437-775-9626
+                {phone}
               </a>
               <Link href="/book">
                 <Button size="lg" className="w-full text-lg rounded-xl h-14">
@@ -160,10 +166,10 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 Junk removal made easy. Fast, friendly, and stress-free service across the Greater Toronto Area. Eco-friendly disposal you can trust.
               </p>
               <div className="flex items-center gap-4">
-                <a href="tel:437-775-9626" className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-secondary-foreground transition-all">
+                <a href={`tel:${phone}`} className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-secondary-foreground transition-all">
                   <Phone className="w-5 h-5" />
                 </a>
-                <a href="mailto:payments@pieceofcakejunk.com" className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-secondary-foreground transition-all">
+                <a href={`mailto:${email}`} className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-secondary hover:text-secondary-foreground transition-all">
                   <Mail className="w-5 h-5" />
                 </a>
               </div>
@@ -197,11 +203,11 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <ul className="space-y-4 text-primary-foreground/80">
                 <li className="flex gap-3">
                   <Phone className="w-5 h-5 shrink-0 text-secondary" />
-                  <span>437-775-9626</span>
+                  <span>{phone}</span>
                 </li>
                 <li className="flex gap-3">
                   <Mail className="w-5 h-5 shrink-0 text-secondary" />
-                  <span>payments@pieceofcakejunk.com</span>
+                  <span>{email}</span>
                 </li>
                 <li className="flex gap-3">
                   <div className="w-5 h-5 shrink-0 rounded-full border border-secondary flex items-center justify-center text-[10px] font-bold text-secondary">
@@ -226,6 +232,3 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-// Needed to make it compile with the icon missing above
-import { Mail } from "lucide-react";

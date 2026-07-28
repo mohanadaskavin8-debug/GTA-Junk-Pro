@@ -1,4 +1,4 @@
-import { useGetDashboardStats } from "@workspace/api-client-react";
+import { useGetDashboardStats, useGetSettings } from "@workspace/api-client-react";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useGetDashboardStats();
+  const { data: settings } = useGetSettings();
 
   if (isLoading || !stats) {
     return (
@@ -105,7 +106,7 @@ export default function Dashboard() {
             <h3 className="text-xl font-bold mb-2">Interac e-Transfer Link</h3>
             <p className="opacity-80 mb-6">Customers send payments to this address. Confirm receipt in the Bookings tab.</p>
             <div className="bg-black/20 p-4 rounded-xl font-mono text-lg text-center break-all select-all">
-              payments@pieceofcakejunk.com
+              {settings?.etransferEmail ?? "payments@pieceofcakejunk.com"}
             </div>
           </CardContent>
         </Card>

@@ -25,6 +25,9 @@ import type {
   Booking,
   BookingInput,
   BookingPatch,
+  BusinessSettings,
+  BusinessSettingsInput,
+  ChangePasswordInput,
   DashboardStats,
   EmailCampaign,
   EmailCampaignInput,
@@ -349,6 +352,302 @@ export function useGetAuthMe<TData = Awaited<ReturnType<typeof getAuthMe>>, TErr
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAuthMeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getChangeAdminPasswordUrl = () => {
+
+
+
+
+  return `/api/auth/change-password`
+}
+
+/**
+ * @summary Change the admin password (admin)
+ */
+export const changeAdminPassword = async (changePasswordInput: ChangePasswordInput, options?: Parameters<typeof customFetch>[1]): Promise<AuthStatus> => {
+
+  return customFetch<AuthStatus>(getChangeAdminPasswordUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(changePasswordInput)
+  }
+);}
+
+
+
+
+
+export const getChangeAdminPasswordMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangePasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangePasswordInput>}, TContext> => {
+
+const mutationKey = ['changeAdminPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof changeAdminPassword>>, {data: BodyType<ChangePasswordInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  changeAdminPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ChangeAdminPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof changeAdminPassword>>>
+    export type ChangeAdminPasswordMutationBody = BodyType<ChangePasswordInput>
+    export type ChangeAdminPasswordMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Change the admin password (admin)
+ */
+export const useChangeAdminPassword = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangePasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof changeAdminPassword>>,
+        TError,
+        {data: BodyType<ChangePasswordInput>},
+        TContext
+      > => {
+      return useMutation(getChangeAdminPasswordMutationOptions(options));
+    }
+
+export const getGetSettingsUrl = () => {
+
+
+
+
+  return `/api/settings`
+}
+
+/**
+ * @summary Get business settings (admin)
+ */
+export const getSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<BusinessSettings> => {
+
+  return customFetch<BusinessSettings>(getGetSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSettingsQueryKey = () => {
+    return [
+    `/api/settings`
+    ] as const;
+    }
+
+
+export const getGetSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSettings>>> = ({ signal }) => getSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getSettings>>>
+export type GetSettingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get business settings (admin)
+ */
+
+export function useGetSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateSettingsUrl = () => {
+
+
+
+
+  return `/api/settings`
+}
+
+/**
+ * @summary Update business settings (admin)
+ */
+export const updateSettings = async (businessSettingsInput: BusinessSettingsInput, options?: Parameters<typeof customFetch>[1]): Promise<BusinessSettings> => {
+
+  return customFetch<BusinessSettings>(getUpdateSettingsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(businessSettingsInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSettingsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<BusinessSettingsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<BusinessSettingsInput>}, TContext> => {
+
+const mutationKey = ['updateSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSettings>>, {data: BodyType<BusinessSettingsInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateSettings>>>
+    export type UpdateSettingsMutationBody = BodyType<BusinessSettingsInput>
+    export type UpdateSettingsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update business settings (admin)
+ */
+export const useUpdateSettings = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,{data: BodyType<BusinessSettingsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateSettings>>,
+        TError,
+        {data: BodyType<BusinessSettingsInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateSettingsMutationOptions(options));
+    }
+
+export const getGetPublicSettingsUrl = () => {
+
+
+
+
+  return `/api/settings/public`
+}
+
+/**
+ * @summary Get public business settings (customer-facing)
+ */
+export const getPublicSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<BusinessSettings> => {
+
+  return customFetch<BusinessSettings>(getGetPublicSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPublicSettingsQueryKey = () => {
+    return [
+    `/api/settings/public`
+    ] as const;
+    }
+
+
+export const getGetPublicSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getPublicSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicSettings>>> = ({ signal }) => getPublicSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPublicSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicSettings>>>
+export type GetPublicSettingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get public business settings (customer-facing)
+ */
+
+export function useGetPublicSettings<TData = Awaited<ReturnType<typeof getPublicSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPublicSettingsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

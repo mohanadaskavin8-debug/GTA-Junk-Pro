@@ -31,7 +31,7 @@ export default function Home() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
   };
 
   return (
@@ -62,7 +62,7 @@ export default function Home() {
               transition={{
                 duration: Math.random() * 10 + 10,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "linear" as const
               }}
             />
           ))}
@@ -128,7 +128,7 @@ export default function Home() {
                 alt="Piece of Cake Junk Truck" 
                 className="relative z-10 w-[120%] max-w-[120%] -ml-10 object-contain drop-shadow-2xl"
                 animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" as const }}
               />
             </motion.div>
           </div>

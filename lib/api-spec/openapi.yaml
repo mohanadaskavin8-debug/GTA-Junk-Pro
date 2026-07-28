@@ -22,6 +22,8 @@ tags:
     description: Admin dashboard stats
   - name: auth
     description: Admin authentication
+  - name: settings
+    description: Business settings management
 
 paths:
   /healthz:
@@ -88,6 +90,75 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AuthStatus"
+
+  /auth/change-password:
+    post:
+      operationId: changeAdminPassword
+      tags: [auth]
+      summary: Change the admin password (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordInput"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+        "401":
+          description: Current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Settings ──────────────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get business settings (admin)
+      responses:
+        "200":
+          description: Business settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessSettings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update business settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessSettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessSettings"
+
+  /settings/public:
+    get:
+      operationId: getPublicSettings
+      tags: [settings]
+      summary: Get public business settings (customer-facing)
+      responses:
+        "200":
+          description: Public settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessSettings"
 
   # ── Services ──────────────────────────────────────────────────────────────
   /services:
@@ -467,6 +538,42 @@ components:
       properties:
         isAdmin:
           type: boolean
+
+    ChangePasswordInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 6
+
+    # ── Settings ────────────────────────────────────────────────────────────
+    BusinessSettings:
+      type: object
+      required: [etransferEmail, businessPhone, businessEmail, serviceArea]
+      properties:
+        etransferEmail:
+          type: string
+        businessPhone:
+          type: string
+        businessEmail:
+          type: string
+        serviceArea:
+          type: string
+
+    BusinessSettingsInput:
+      type: object
+      properties:
+        etransferEmail:
+          type: string
+        businessPhone:
+          type: string
+        businessEmail:
+          type: string
+        serviceArea:
+          type: string
 
     # ── Services ────────────────────────────────────────────────────────────
     Service:

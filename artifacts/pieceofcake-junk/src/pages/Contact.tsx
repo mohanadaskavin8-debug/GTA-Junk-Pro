@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { useCreateBooking } from "@workspace/api-client-react";
+import { useCreateBooking, useGetPublicSettings } from "@workspace/api-client-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,10 @@ const contactSchema = z.object({
 export default function Contact() {
   const [success, setSuccess] = useState(false);
   const createBooking = useCreateBooking();
+  const { data: settings } = useGetPublicSettings();
+  const phone = settings?.businessPhone ?? "437-775-9626";
+  const email = settings?.businessEmail ?? "payments@pieceofcakejunk.com";
+  const serviceArea = settings?.serviceArea ?? "Greater Toronto Area";
 
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -69,8 +73,8 @@ export default function Contact() {
                   <div>
                     <h3 className="font-bold text-lg">Call Us Directly</h3>
                     <p className="text-muted-foreground mb-2">Available Mon-Sat, 8am to 6pm</p>
-                    <a href="tel:437-775-9626" className="text-xl font-bold hover:text-primary transition-colors">
-                      437-775-9626
+                    <a href={`tel:${phone}`} className="text-xl font-bold hover:text-primary transition-colors">
+                      {phone}
                     </a>
                   </div>
                 </div>
@@ -82,8 +86,8 @@ export default function Contact() {
                   <div>
                     <h3 className="font-bold text-lg">Email Us</h3>
                     <p className="text-muted-foreground mb-2">For inquiries and e-Transfers</p>
-                    <a href="mailto:payments@pieceofcakejunk.com" className="font-medium hover:text-primary transition-colors">
-                      payments@pieceofcakejunk.com
+                    <a href={`mailto:${email}`} className="font-medium hover:text-primary transition-colors">
+                      {email}
                     </a>
                   </div>
                 </div>
@@ -95,7 +99,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-bold text-lg">Service Area</h3>
                     <p className="text-muted-foreground">
-                      Greater Toronto Area<br/>
+                      {serviceArea}<br/>
                       Toronto, Mississauga, Markham, Richmond Hill, Vaughan, and more.
                     </p>
                   </div>

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useAdminLogin, useGetAuthMe, getGetAuthMeQueryKey } from "@workspace/api-client-react";
-import { useLocation } from "wouter";
-import { Cake } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { ArrowLeft, Cake } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,11 +28,12 @@ export default function Login() {
     defaultValues: { password: "" },
   });
 
-  // Redirect if already logged in
-  if (!isLoading && auth?.isAdmin) {
-    setLocation("/admin/dashboard");
-    return null;
-  }
+  // Redirect if already logged in — in an effect, never during render
+  useEffect(() => {
+    if (!isLoading && auth?.isAdmin) {
+      setLocation("/admin/dashboard");
+    }
+  }, [isLoading, auth?.isAdmin, setLocation]);
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
     loginMutation.mutate({
@@ -54,7 +55,7 @@ export default function Login() {
     });
   };
 
-  if (isLoading) return null;
+  if (isLoading || auth?.isAdmin) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4">
@@ -96,6 +97,15 @@ export default function Login() {
             </Button>
           </form>
         </Form>
+
+        <div className="mt-8 pt-6 border-t text-center">
+          <Link href="/">
+            <Button variant="ghost" className="text-muted-foreground gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Main Site
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

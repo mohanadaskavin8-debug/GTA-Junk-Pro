@@ -5,7 +5,10 @@ import {
   useUpdateBooking, 
   useDeleteBooking,
   getListBookingsQueryKey,
-  getGetDashboardStatsQueryKey
+  getGetDashboardStatsQueryKey,
+  BookingStatus,
+  BookingPaymentStatus,
+  type Booking
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -20,8 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Trash2, CheckCircle, Clock, XCircle, Search, DollarSign } from "lucide-react";
-import { BookingStatus, BookingPaymentStatus, Booking } from "@workspace/api-client-react/src/generated/api.schemas";
+import { Eye, Trash2, CheckCircle, Clock, XCircle, Search, DollarSign, Download } from "lucide-react";
 
 export default function Bookings() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -98,6 +100,36 @@ export default function Bookings() {
     `POC-${b.id.toString().padStart(4, '0')}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleExportCsv = () => {
+    if (!filteredBookings?.length) {
+      toast({ title: "Nothing to export", description: "No bookings match the current filters." });
+      return;
+    }
+    const escape = (v: unknown) => {
+      let s = String(v ?? "");
+      // Neutralize spreadsheet formula injection (=, +, -, @, tab, CR at cell start)
+      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const headers = ["Reference", "Customer", "Email", "Phone", "Address", "City", "Postal Code", "Service", "Date", "Time", "Status", "Payment", "Amount", "Notes", "Created"];
+    const rows = filteredBookings.map(b => [
+      `POC-${b.id.toString().padStart(4, "0")}`,
+      b.customerName, b.customerEmail, b.customerPhone,
+      b.address, b.city ?? "", b.postalCode ?? "",
+      b.serviceName ?? "", b.serviceDate, b.serviceTime,
+      b.status, b.paymentStatus, b.totalAmount ?? "", b.notes ?? "", b.createdAt,
+    ].map(escape).join(","));
+    const csv = [headers.map(escape).join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookings-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: `${filteredBookings.length} bookings exported to CSV.` });
+  };
+
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'pending': return <Badge variant="warning"><Clock className="w-3 h-3 mr-1"/> Pending</Badge>;
@@ -120,6 +152,10 @@ export default function Bookings() {
           <h1 className="text-3xl font-black font-display">Bookings</h1>
           <p className="text-muted-foreground mt-1">Manage customer jobs and payments.</p>
         </div>
+        <Button variant="outline" className="rounded-xl gap-2" onClick={handleExportCsv}>
+          <Download className="w-4 h-4" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 bg-card p-4 rounded-2xl border shadow-sm">

@@ -8,7 +8,9 @@ import {
   LogOut,
   Cake,
   Menu,
-  X
+  X,
+  Settings,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -44,6 +46,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { name: "Bookings", path: "/admin/bookings", icon: CalendarDays },
     { name: "Services", path: "/admin/services", icon: Briefcase },
     { name: "Email Marketing", path: "/admin/email", icon: Mail },
+    { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 
   const handleLogout = () => {
@@ -101,7 +104,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           
-          <div className="mt-auto px-4 pb-4">
+          <div className="mt-auto space-y-1 px-4 pb-4">
+            <Link href="/">
+              <div className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground">
+                <ExternalLink className="h-5 w-5" />
+                View Website
+              </div>
+            </Link>
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 px-3 text-muted-foreground hover:text-foreground"

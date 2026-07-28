@@ -21,6 +21,26 @@ export interface AuthStatus {
   isAdmin: boolean;
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string;
+  /** @minLength 6 */
+  newPassword: string;
+}
+
+export interface BusinessSettings {
+  etransferEmail: string;
+  businessPhone: string;
+  businessEmail: string;
+  serviceArea: string;
+}
+
+export interface BusinessSettingsInput {
+  etransferEmail?: string;
+  businessPhone?: string;
+  businessEmail?: string;
+  serviceArea?: string;
+}
+
 export interface Service {
   id: number;
   name: string;

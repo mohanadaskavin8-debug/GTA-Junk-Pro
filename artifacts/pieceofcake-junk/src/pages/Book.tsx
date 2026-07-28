@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, CheckCircle2, ChevronRight, Check } from "lucide-react";
 
-import { useListServices, useCreateBooking, useCreateSubscriber } from "@workspace/api-client-react";
+import { useListServices, useCreateBooking, useCreateSubscriber, useGetPublicSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,8 +47,10 @@ export default function Book() {
   const [bookingRef, setBookingRef] = useState("");
 
   const { data: services, isLoading: isLoadingServices } = useListServices();
+  const { data: publicSettings } = useGetPublicSettings();
   const createBooking = useCreateBooking();
   const createSubscriber = useCreateSubscriber();
+  const etransferEmail = publicSettings?.etransferEmail ?? "payments@pieceofcakejunk.com";
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -129,7 +131,7 @@ export default function Book() {
             <ul className="space-y-3 font-medium">
               <li className="flex justify-between border-b pb-2">
                 <span className="text-muted-foreground">Email:</span>
-                <span className="font-bold text-foreground">payments@pieceofcakejunk.com</span>
+                <span className="font-bold text-foreground">{etransferEmail}</span>
               </li>
               <li className="flex justify-between border-b pb-2">
                 <span className="text-muted-foreground">Message/Notes:</span>

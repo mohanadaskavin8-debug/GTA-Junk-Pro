@@ -45,6 +45,63 @@ export const GetAuthMeResponse = zod.object({
 
 
 /**
+ * @summary Change the admin password (admin)
+ */
+export const changeAdminPasswordBodyNewPasswordMin = 6;
+
+
+
+export const ChangeAdminPasswordBody = zod.object({
+  "currentPassword": zod.string(),
+  "newPassword": zod.string().min(changeAdminPasswordBodyNewPasswordMin)
+})
+
+export const ChangeAdminPasswordResponse = zod.object({
+  "isAdmin": zod.boolean()
+})
+
+
+/**
+ * @summary Get business settings (admin)
+ */
+export const GetSettingsResponse = zod.object({
+  "etransferEmail": zod.string(),
+  "businessPhone": zod.string(),
+  "businessEmail": zod.string(),
+  "serviceArea": zod.string()
+})
+
+
+/**
+ * @summary Update business settings (admin)
+ */
+export const UpdateSettingsBody = zod.object({
+  "etransferEmail": zod.string().optional(),
+  "businessPhone": zod.string().optional(),
+  "businessEmail": zod.string().optional(),
+  "serviceArea": zod.string().optional()
+})
+
+export const UpdateSettingsResponse = zod.object({
+  "etransferEmail": zod.string(),
+  "businessPhone": zod.string(),
+  "businessEmail": zod.string(),
+  "serviceArea": zod.string()
+})
+
+
+/**
+ * @summary Get public business settings (customer-facing)
+ */
+export const GetPublicSettingsResponse = zod.object({
+  "etransferEmail": zod.string(),
+  "businessPhone": zod.string(),
+  "businessEmail": zod.string(),
+  "serviceArea": zod.string()
+})
+
+
+/**
  * @summary List all service offerings
  */
 export const ListServicesResponseItem = zod.object({
