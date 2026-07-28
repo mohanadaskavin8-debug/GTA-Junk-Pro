@@ -146,3 +146,24 @@
     @apply font-display tracking-tight;
   }
 }
+
+/* Review marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 70s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee 70s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
+}

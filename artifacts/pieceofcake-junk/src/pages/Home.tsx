@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { ArrowRight, Star, Clock, Leaf, Shield, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
+import { RemovalItemsSection } from "@/components/home/RemovalItemsSection";
+import { GoogleReviewsSection } from "@/components/home/GoogleReviewsSection";
 import { useListServices } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -197,6 +199,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* What We Take Section */}
+      <RemovalItemsSection />
+
       {/* Before / After Section */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 md:px-6">
@@ -261,6 +266,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Google Reviews Section */}
+      <GoogleReviewsSection />
 
       {/* CTA Section */}
       <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
