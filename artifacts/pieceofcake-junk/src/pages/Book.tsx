@@ -403,18 +403,7 @@ export default function Book() {
                                 }
                               }}
                               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                              className="rounded-2xl border shadow-sm p-4"
-                              classNames={{
-                                day: "h-9 w-9 p-0 font-bold aria-selected:opacity-100",
-                                day_selected:
-                                  "bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                                day_today:
-                                  "ring-2 ring-primary ring-offset-1 rounded-full font-bold",
-                                day_disabled:
-                                  "text-muted-foreground/40 font-normal cursor-not-allowed",
-                                day_outside:
-                                  "text-muted-foreground/30 font-normal",
-                              }}
+                              className="rounded-2xl border shadow-sm"
                             />
                           </FormControl>
                           {pastDateError ? (

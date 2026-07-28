@@ -200,14 +200,7 @@ export default function ManageBooking() {
             onSelect={(d) => { setPastDateError(false); setReschedDate(d); }}
             onDayClick={(d) => { if (d < today) { setPastDateError(true); } else { setPastDateError(false); } }}
             disabled={(d) => d < today}
-            className="rounded-2xl border shadow-sm p-4"
-            classNames={{
-              day: "h-9 w-9 p-0 font-bold aria-selected:opacity-100",
-              day_selected: "bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary hover:text-primary-foreground",
-              day_today: "ring-2 ring-primary ring-offset-1 rounded-full font-bold",
-              day_disabled: "text-muted-foreground/40 font-normal cursor-not-allowed",
-              day_outside: "text-muted-foreground/30 font-normal",
-            }}
+            className="rounded-2xl border shadow-sm"
           />
 
           {pastDateError && (
