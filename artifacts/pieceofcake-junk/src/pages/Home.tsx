@@ -179,10 +179,9 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-bold font-display mb-2">{service.name}</h3>
                   <p className="text-muted-foreground mb-6 line-clamp-2">{service.description}</p>
-                  <div className="flex items-end gap-2 mt-auto">
-                    <span className="text-3xl font-black">${service.price}</span>
-                    <span className="text-muted-foreground font-medium pb-1">/{service.unit}</span>
-                  </div>
+                  <Link href="/book" className="mt-auto block">
+                    <Button className="rounded-xl w-full">Book Free Estimate</Button>
+                  </Link>
                 </motion.div>
               ))}
             </div>
