@@ -27,6 +27,7 @@ import { Mail, KeyRound } from "lucide-react";
 
 const businessSchema = z.object({
   emailFromAddress: z.string().min(5, "Required"),
+  emailFromPromotion: z.string().min(5, "Required"),
   businessPhone: z.string().min(1, "Required"),
   businessEmail: z.string().email("Enter a valid email"),
   serviceArea: z.string().min(1, "Required"),
@@ -54,6 +55,7 @@ export default function Settings() {
     resolver: zodResolver(businessSchema),
     defaultValues: {
       emailFromAddress: "",
+      emailFromPromotion: "",
       businessPhone: "",
       businessEmail: "",
       serviceArea: "",
@@ -146,14 +148,28 @@ export default function Settings() {
                 name="emailFromAddress"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirmation Email Sender</FormLabel>
+                    <FormLabel>Booking Email Sender</FormLabel>
                     <FormControl>
                       <Input placeholder="Piece of Cake Junk <bookings@yourdomain.com>" {...field} />
                     </FormControl>
                     <p className="text-xs text-muted-foreground">
-                      Booking confirmations are sent from this address. Use a sender on your
-                      verified Resend domain — until your domain is verified, leave this as
-                      the default onboarding sender.
+                      Used for booking confirmations, reschedules, and cancellations. Must be on your verified Resend domain.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={businessForm.control}
+                name="emailFromPromotion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Promotional Email Sender</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Piece of Cake Junk <info@promotions.yourdomain.com>" {...field} />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Used for marketing campaigns sent from Email Marketing. Must be on your verified Resend domain.
                     </p>
                     <FormMessage />
                   </FormItem>

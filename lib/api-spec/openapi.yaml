@@ -572,9 +572,11 @@ components:
     # ── Settings ────────────────────────────────────────────────────────────
     BusinessSettings:
       type: object
-      required: [emailFromAddress, businessPhone, businessEmail, serviceArea]
+      required: [emailFromAddress, emailFromPromotion, businessPhone, businessEmail, serviceArea]
       properties:
         emailFromAddress:
+          type: string
+        emailFromPromotion:
           type: string
         businessPhone:
           type: string
@@ -587,6 +589,8 @@ components:
       type: object
       properties:
         emailFromAddress:
+          type: string
+        emailFromPromotion:
           type: string
         businessPhone:
           type: string

@@ -66,6 +66,7 @@ export const ChangeAdminPasswordResponse = zod.object({
  */
 export const GetSettingsResponse = zod.object({
   "emailFromAddress": zod.string(),
+  "emailFromPromotion": zod.string(),
   "businessPhone": zod.string(),
   "businessEmail": zod.string(),
   "serviceArea": zod.string()
@@ -77,6 +78,7 @@ export const GetSettingsResponse = zod.object({
  */
 export const UpdateSettingsBody = zod.object({
   "emailFromAddress": zod.string().optional(),
+  "emailFromPromotion": zod.string().optional(),
   "businessPhone": zod.string().optional(),
   "businessEmail": zod.string().optional(),
   "serviceArea": zod.string().optional()
@@ -84,6 +86,7 @@ export const UpdateSettingsBody = zod.object({
 
 export const UpdateSettingsResponse = zod.object({
   "emailFromAddress": zod.string(),
+  "emailFromPromotion": zod.string(),
   "businessPhone": zod.string(),
   "businessEmail": zod.string(),
   "serviceArea": zod.string()

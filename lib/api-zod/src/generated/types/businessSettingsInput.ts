@@ -8,6 +8,7 @@
 
 export interface BusinessSettingsInput {
   emailFromAddress?: string;
+  emailFromPromotion?: string;
   businessPhone?: string;
   businessEmail?: string;
   serviceArea?: string;

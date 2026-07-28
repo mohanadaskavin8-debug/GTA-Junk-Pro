@@ -19,15 +19,21 @@ interface EmailSettings {
   replyTo?: string;
 }
 
-async function getEmailSettings(): Promise<EmailSettings> {
+const DEFAULT_FROM_PROMO = "Piece of Cake Junk <onboarding@resend.dev>";
+
+async function getEmailSettings(type: "transactional" | "promotional" = "transactional"): Promise<EmailSettings> {
   const rows = await db
     .select()
     .from(settingsTable)
-    .where(inArray(settingsTable.key, ["emailFromAddress", "businessEmail"]));
+    .where(inArray(settingsTable.key, ["emailFromAddress", "emailFromPromotion", "businessEmail"]));
 
-  const from =
+  const transactionalFrom =
     rows.find((r) => r.key === "emailFromAddress")?.value?.trim() || DEFAULT_FROM;
+  const promotionalFrom =
+    rows.find((r) => r.key === "emailFromPromotion")?.value?.trim() || DEFAULT_FROM_PROMO;
   const replyTo = rows.find((r) => r.key === "businessEmail")?.value?.trim();
+
+  const from = type === "promotional" ? promotionalFrom : transactionalFrom;
   return { from, ...(replyTo ? { replyTo } : {}) };
 }
 
@@ -111,6 +117,7 @@ interface SendArgs {
   subject: string;
   html: string;
   text: string;
+  type?: "transactional" | "promotional";
 }
 
 async function send(args: SendArgs): Promise<EmailResult> {
@@ -120,7 +127,7 @@ async function send(args: SendArgs): Promise<EmailResult> {
   }
 
   const resend = new Resend(apiKey);
-  const settings = await getEmailSettings();
+  const settings = await getEmailSettings(args.type ?? "transactional");
 
   try {
     const { error } = await resend.emails.send({
@@ -387,5 +394,6 @@ export async function sendCampaignEmail(args: CampaignEmailArgs): Promise<EmailR
     subject: args.subject,
     html,
     text,
+    type: "promotional",
   });
 }

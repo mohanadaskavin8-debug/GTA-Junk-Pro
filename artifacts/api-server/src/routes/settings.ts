@@ -7,6 +7,7 @@ const router: IRouter = Router();
 
 export const SETTINGS_DEFAULTS: Record<string, string> = {
   emailFromAddress: "Piece of Cake Junk <onboarding@resend.dev>",
+  emailFromPromotion: "Piece of Cake Junk <onboarding@resend.dev>",
   businessPhone: "437-775-9626",
   businessEmail: "info@pieceofcakejunk.com",
   serviceArea: "Greater Toronto Area",
@@ -14,6 +15,7 @@ export const SETTINGS_DEFAULTS: Record<string, string> = {
 
 const BUSINESS_KEYS = [
   "emailFromAddress",
+  "emailFromPromotion",
   "businessPhone",
   "businessEmail",
   "serviceArea",

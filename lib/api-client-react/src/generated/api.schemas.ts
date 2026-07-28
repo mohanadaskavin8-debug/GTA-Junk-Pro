@@ -29,6 +29,7 @@ export interface ChangePasswordInput {
 
 export interface BusinessSettings {
   emailFromAddress: string;
+  emailFromPromotion: string;
   businessPhone: string;
   businessEmail: string;
   serviceArea: string;
@@ -36,6 +37,7 @@ export interface BusinessSettings {
 
 export interface BusinessSettingsInput {
   emailFromAddress?: string;
+  emailFromPromotion?: string;
   businessPhone?: string;
   businessEmail?: string;
   serviceArea?: string;
