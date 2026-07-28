@@ -158,9 +158,9 @@ export default function Book() {
           {/* Progress Bar */}
           <div className="flex items-center justify-center gap-2 mt-8 max-w-md mx-auto">
             {[1, 2, 3].map((i) => (
-              <React.Fragment key={i}>
+              <div key={i} className="flex items-center flex-1 last:flex-none">
                 <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors",
+                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors shrink-0",
                   step === i ? "bg-primary text-primary-foreground ring-4 ring-primary/20" : 
                   step > i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 )}>
@@ -168,11 +168,11 @@ export default function Book() {
                 </div>
                 {i < 3 && (
                   <div className={cn(
-                    "flex-1 h-1 rounded-full transition-colors",
+                    "flex-1 h-1 rounded-full transition-colors mx-2",
                     step > i ? "bg-primary" : "bg-border"
                   )} />
                 )}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         </div>
