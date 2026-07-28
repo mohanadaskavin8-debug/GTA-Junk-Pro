@@ -126,6 +126,22 @@ export interface Booking {
   /** @nullable */
   notes: string | null;
   createdAt: string;
+  manageUrl?: string;
+}
+
+export type BookingManageInputAction = typeof BookingManageInputAction[keyof typeof BookingManageInputAction];
+
+
+export const BookingManageInputAction = {
+  cancel: 'cancel',
+  reschedule: 'reschedule',
+} as const;
+
+export interface BookingManageInput {
+  token: string;
+  action: BookingManageInputAction;
+  serviceDate?: string;
+  serviceTime?: string;
 }
 
 export interface BookingInput {

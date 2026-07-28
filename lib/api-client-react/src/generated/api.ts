@@ -24,6 +24,7 @@ import type {
   AuthStatus,
   Booking,
   BookingInput,
+  BookingManageInput,
   BookingPatch,
   BusinessSettings,
   BusinessSettingsInput,
@@ -1404,6 +1405,78 @@ export const useDeleteBooking = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getDeleteBookingMutationOptions(options));
+    }
+
+export const getManageBookingUrl = (id: number,) => {
+
+
+
+
+  return `/api/bookings/${id}/manage`
+}
+
+/**
+ * @summary Cancel or reschedule a booking using a self-service token (public)
+ */
+export const manageBooking = async (id: number,
+    bookingManageInput: BookingManageInput, options?: Parameters<typeof customFetch>[1]): Promise<Booking> => {
+
+  return customFetch<Booking>(getManageBookingUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(bookingManageInput)
+  }
+);}
+
+
+
+
+
+export const getManageBookingMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof manageBooking>>, TError,{id: number;data: BodyType<BookingManageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof manageBooking>>, TError,{id: number;data: BodyType<BookingManageInput>}, TContext> => {
+
+const mutationKey = ['manageBooking'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof manageBooking>>, {id: number;data: BodyType<BookingManageInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  manageBooking(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ManageBookingMutationResult = NonNullable<Awaited<ReturnType<typeof manageBooking>>>
+    export type ManageBookingMutationBody = BodyType<BookingManageInput>
+    export type ManageBookingMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Cancel or reschedule a booking using a self-service token (public)
+ */
+export const useManageBooking = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof manageBooking>>, TError,{id: number;data: BodyType<BookingManageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof manageBooking>>,
+        TError,
+        {id: number;data: BodyType<BookingManageInput>},
+        TContext
+      > => {
+      return useMutation(getManageBookingMutationOptions(options));
     }
 
 export const getListSubscribersUrl = () => {

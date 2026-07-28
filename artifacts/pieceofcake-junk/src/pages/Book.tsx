@@ -14,6 +14,8 @@ import {
   Pencil,
   Building2,
   Mail,
+  CalendarClock,
+  X,
 } from "lucide-react";
 
 import { useCreateBooking, useCreateSubscriber } from "@workspace/api-client-react";
@@ -29,6 +31,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -94,6 +97,7 @@ export default function Book() {
   const [step, setStep] = useState(1);
   const [isSuccess, setIsSuccess] = useState(false);
   const [bookingRef, setBookingRef] = useState("");
+  const [manageUrl, setManageUrl] = useState("");
   const [pastDateError, setPastDateError] = useState(false);
 
   const createBooking = useCreateBooking();
@@ -152,6 +156,7 @@ export default function Book() {
       {
         onSuccess: (result) => {
           setBookingRef(`POC-${result.id.toString().padStart(4, "0")}`);
+          setManageUrl(result.manageUrl ?? "");
           setIsSuccess(true);
           window.scrollTo(0, 0);
 
@@ -223,6 +228,21 @@ export default function Book() {
               <div className="text-muted-foreground truncate">{form.getValues("address")}</div>
             </div>
           </div>
+
+          {manageUrl && (
+            <div className="flex gap-3 justify-center mb-4">
+              <Link href={manageUrl}>
+                <Button size="lg" variant="outline" className="rounded-2xl gap-2">
+                  <CalendarClock className="w-4 h-4" /> Reschedule
+                </Button>
+              </Link>
+              <Link href={manageUrl}>
+                <Button size="lg" variant="outline" className="rounded-2xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/5">
+                  <X className="w-4 h-4" /> Cancel Booking
+                </Button>
+              </Link>
+            </div>
+          )}
 
           <Link href="/">
             <Button size="lg" className="rounded-2xl">Return to Homepage</Button>
@@ -301,7 +321,15 @@ export default function Book() {
                         <FormItem>
                           <FormLabel>Street Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="123 Main St" className="h-12" {...field} />
+                            <AddressAutocomplete
+                              value={field.value}
+                              onChange={field.onChange}
+                              onSelect={(street, city, postal) => {
+                                field.onChange(street);
+                                if (city) form.setValue("city", city, { shouldValidate: true });
+                                if (postal) form.setValue("postalCode", postal, { shouldValidate: true });
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -377,12 +405,15 @@ export default function Book() {
                               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                               className="rounded-2xl border shadow-sm p-4"
                               classNames={{
+                                day: "h-9 w-9 p-0 font-bold aria-selected:opacity-100",
                                 day_selected:
-                                  "bg-yellow-400 text-gray-900 font-bold rounded-full hover:bg-yellow-400 hover:text-gray-900 focus:bg-yellow-400 focus:text-gray-900",
+                                  "bg-primary text-primary-foreground font-bold rounded-full hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                                 day_today:
-                                  "border-2 border-primary rounded-full font-semibold text-primary",
+                                  "ring-2 ring-primary ring-offset-1 rounded-full font-bold",
                                 day_disabled:
-                                  "text-muted-foreground opacity-30 cursor-not-allowed",
+                                  "text-muted-foreground/40 font-normal cursor-not-allowed",
+                                day_outside:
+                                  "text-muted-foreground/30 font-normal",
                               }}
                             />
                           </FormControl>

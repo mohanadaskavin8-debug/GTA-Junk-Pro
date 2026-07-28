@@ -15,6 +15,10 @@ import {
   sendBookingReschedule,
 } from "../lib/email";
 import { requireAdmin } from "../middleware/requireAdmin";
+import {
+  verifyBookingManageToken,
+  bookingManageUrl,
+} from "../lib/unsubscribe";
 
 const router: IRouter = Router();
 
@@ -115,7 +119,7 @@ router.post("/bookings", async (req, res): Promise<void> => {
       req.log.error({ err, bookingId: booking.id }, "Confirmation email failed");
     });
 
-  res.status(201).json(formatBooking(booking));
+  res.status(201).json({ ...formatBooking(booking), manageUrl: bookingManageUrl(booking.id, booking.customerEmail) });
 });
 
 router.get("/bookings/:id", async (req, res): Promise<void> => {
@@ -216,6 +220,61 @@ router.patch("/bookings/:id", requireAdmin, async (req, res): Promise<void> => {
   }
 
   res.json(formatBooking(booking));
+});
+
+router.post("/bookings/:id/manage", async (req, res): Promise<void> => {
+  const params = GetBookingParams.safeParse(req.params);
+  if (!params.success) { res.status(400).json({ error: "Invalid booking id" }); return; }
+
+  const { token, action, serviceDate, serviceTime } = req.body ?? {};
+  if (!token || typeof token !== "string") { res.status(400).json({ error: "token is required" }); return; }
+  if (action !== "cancel" && action !== "reschedule") { res.status(400).json({ error: "action must be cancel or reschedule" }); return; }
+
+  const [existing] = await db.select().from(bookingsTable).where(eq(bookingsTable.id, params.data.id));
+  if (!existing) { res.status(404).json({ error: "Booking not found" }); return; }
+
+  if (!verifyBookingManageToken(existing.id, existing.customerEmail, token)) {
+    res.status(403).json({ error: "Invalid or expired link" });
+    return;
+  }
+
+  if (existing.status === "cancelled" || existing.status === "completed") {
+    res.status(400).json({ error: `Booking is already ${existing.status}` });
+    return;
+  }
+
+  let updates: Partial<BookingRow> = {};
+  if (action === "cancel") {
+    updates.status = "cancelled";
+  } else {
+    if (!serviceDate || !serviceTime) {
+      res.status(400).json({ error: "serviceDate and serviceTime are required for reschedule" });
+      return;
+    }
+    updates.serviceDate = serviceDate;
+    updates.serviceTime = serviceTime;
+  }
+
+  const [booking] = await db
+    .update(bookingsTable)
+    .set(updates)
+    .where(eq(bookingsTable.id, params.data.id))
+    .returning();
+
+  const becameCancelled = action === "cancel";
+  const timingChanged = action === "reschedule";
+
+  if (becameCancelled) {
+    sendBookingCancellation(booking)
+      .then((r) => req.log.info({ bookingId: booking.id, sent: r.sent }, "Self-service cancellation email"))
+      .catch((err) => req.log.error({ err }, "Self-service cancellation email failed"));
+  } else if (timingChanged) {
+    sendBookingReschedule(booking, { serviceDate: existing.serviceDate, serviceTime: existing.serviceTime })
+      .then((r) => req.log.info({ bookingId: booking.id, sent: r.sent }, "Self-service reschedule email"))
+      .catch((err) => req.log.error({ err }, "Self-service reschedule email failed"));
+  }
+
+  res.json({ ...formatBooking(booking), manageUrl: bookingManageUrl(booking.id, booking.customerEmail) });
 });
 
 router.delete("/bookings/:id", async (req, res): Promise<void> => {

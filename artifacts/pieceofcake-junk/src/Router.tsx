@@ -8,6 +8,7 @@ import Services from "@/pages/Services";
 import Book from "@/pages/Book";
 import Contact from "@/pages/Contact";
 import Unsubscribe from "@/pages/Unsubscribe";
+import ManageBooking from "@/pages/ManageBooking";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/Login";
@@ -64,6 +65,9 @@ function Router() {
       </Route>
       <Route path="/unsubscribe">
         {() => <PublicLayout><Unsubscribe /></PublicLayout>}
+      </Route>
+      <Route path="/booking/manage">
+        {() => <PublicLayout><ManageBooking /></PublicLayout>}
       </Route>
 
       <Route component={NotFound} />

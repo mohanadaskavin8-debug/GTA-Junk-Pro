@@ -38,3 +38,25 @@ export function unsubscribeUrl(email: string): string {
   const normalized = normalizeEmail(email);
   return `${publicBaseUrl()}/unsubscribe?email=${encodeURIComponent(normalized)}&token=${unsubscribeToken(normalized)}`;
 }
+
+// ── Booking self-service management tokens ───────────────────────────────────
+
+export function bookingManageToken(bookingId: number, customerEmail: string): string {
+  return createHmac("sha256", secret())
+    .update(`booking:${bookingId}:${normalizeEmail(customerEmail)}`)
+    .digest("hex");
+}
+
+export function verifyBookingManageToken(
+  bookingId: number,
+  customerEmail: string,
+  token: string
+): boolean {
+  const expected = Buffer.from(bookingManageToken(bookingId, customerEmail), "utf8");
+  const provided = Buffer.from(token, "utf8");
+  return expected.length === provided.length && timingSafeEqual(expected, provided);
+}
+
+export function bookingManageUrl(bookingId: number, customerEmail: string): string {
+  return `${publicBaseUrl()}/booking/manage?id=${bookingId}&token=${bookingManageToken(bookingId, customerEmail)}`;
+}

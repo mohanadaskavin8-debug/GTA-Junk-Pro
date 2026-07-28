@@ -10,6 +10,8 @@ export * from './adminCredentials';
 export * from './authStatus';
 export * from './booking';
 export * from './bookingInput';
+export * from './bookingManageInput';
+export * from './bookingManageInputAction';
 export * from './bookingPatch';
 export * from './bookingPatchStatus';
 export * from './bookingStatus';

@@ -205,7 +205,8 @@ export const ListBookingsResponseItem = zod.object({
   "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
   "notes": zod.string().nullable(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
 })
 export const ListBookingsResponse = zod.array(ListBookingsResponseItem)
 
@@ -247,7 +248,8 @@ export const CreateBookingResponse = zod.object({
   "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
   "notes": zod.string().nullable(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
 })
 
 
@@ -269,7 +271,8 @@ export const ListUpcomingBookingsResponseItem = zod.object({
   "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
   "notes": zod.string().nullable(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
 })
 export const ListUpcomingBookingsResponse = zod.array(ListUpcomingBookingsResponseItem)
 
@@ -296,7 +299,8 @@ export const GetBookingResponse = zod.object({
   "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
   "notes": zod.string().nullable(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
 })
 
 
@@ -330,7 +334,8 @@ export const UpdateBookingResponse = zod.object({
   "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
   "notes": zod.string().nullable(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
 })
 
 
@@ -342,6 +347,40 @@ export const DeleteBookingParams = zod.object({
 })
 
 export const DeleteBookingResponse = zod.void()
+
+
+/**
+ * @summary Cancel or reschedule a booking using a self-service token (public)
+ */
+export const ManageBookingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ManageBookingBody = zod.object({
+  "token": zod.string(),
+  "action": zod.enum(['cancel', 'reschedule']),
+  "serviceDate": zod.string().optional(),
+  "serviceTime": zod.string().optional()
+})
+
+export const ManageBookingResponse = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "customerPhone": zod.string(),
+  "address": zod.string(),
+  "city": zod.string().optional(),
+  "postalCode": zod.string().optional(),
+  "serviceDate": zod.string(),
+  "serviceTime": zod.string(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
+  "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
+  "notes": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "manageUrl": zod.string().optional()
+})
 
 
 /**

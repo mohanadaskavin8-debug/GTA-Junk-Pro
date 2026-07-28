@@ -387,6 +387,49 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /bookings/{id}/manage:
+    post:
+      operationId: manageBooking
+      tags: [bookings]
+      summary: Cancel or reschedule a booking using a self-service token (public)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingManageInput"
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   # ── Subscribers ───────────────────────────────────────────────────────────
   /subscribers:
     get:
@@ -703,6 +746,22 @@ components:
         notes:
           type: ["string", "null"]
         createdAt:
+          type: string
+        manageUrl:
+          type: string
+
+    BookingManageInput:
+      type: object
+      required: [token, action]
+      properties:
+        token:
+          type: string
+        action:
+          type: string
+          enum: [cancel, reschedule]
+        serviceDate:
+          type: string
+        serviceTime:
           type: string
 
     BookingInput:

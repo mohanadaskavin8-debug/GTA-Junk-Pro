@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { inArray } from "drizzle-orm";
 import { db, settingsTable, bookingsTable } from "@workspace/db";
-import { publicBaseUrl, unsubscribeUrl } from "./unsubscribe";
+import { publicBaseUrl, unsubscribeUrl, bookingManageUrl } from "./unsubscribe";
 
 type BookingRow = typeof bookingsTable.$inferSelect;
 
@@ -172,8 +172,13 @@ export async function sendBookingConfirmation(booking: BookingRow): Promise<Emai
         No pressure, no obligation &mdash; and if you like the price, we can haul everything away right then and there.
       </p>
     </div>
-    <p style="margin:24px 0 0;color:#6b7280;font-size:13px;line-height:1.6;">
-      Need to make a change? Just reply to this email or call us at <strong style="color:#111827;">${PHONE}</strong>.
+    <div style="text-align:center;margin-top:24px;padding:16px;border:1px solid #eee9fb;border-radius:12px;">
+      <p style="margin:0 0 12px;color:#374151;font-size:13px;">Need to make a change?</p>
+      <a href="${bookingManageUrl(booking.id, booking.customerEmail)}" style="display:inline-block;background:${BRAND_YELLOW};color:#3b2b00;font-size:14px;font-weight:700;border-radius:10px;padding:10px 22px;text-decoration:none;margin-right:8px;">Reschedule</a>
+      <a href="${bookingManageUrl(booking.id, booking.customerEmail)}" style="display:inline-block;background:#f3f4f6;color:#374151;font-size:14px;font-weight:700;border-radius:10px;padding:10px 22px;text-decoration:none;">Cancel</a>
+    </div>
+    <p style="margin:16px 0 0;color:#6b7280;font-size:13px;line-height:1.6;text-align:center;">
+      Or call us at <strong style="color:#111827;">${PHONE}</strong>.
     </p>`;
 
   const html = brandedEmail({

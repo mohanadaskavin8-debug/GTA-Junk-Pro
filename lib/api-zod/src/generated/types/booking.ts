@@ -26,4 +26,5 @@ export interface Booking {
   /** @nullable */
   notes: string | null;
   createdAt: string;
+  manageUrl?: string;
 }
