@@ -278,10 +278,14 @@ export const ListUpcomingBookingsResponse = zod.array(ListUpcomingBookingsRespon
 
 
 /**
- * @summary Get a single booking
+ * @summary Get a single booking (admin session or valid manage token required)
  */
 export const GetBookingParams = zod.object({
   "id": zod.coerce.number()
+})
+
+export const GetBookingQueryParams = zod.object({
+  "token": zod.coerce.string().optional()
 })
 
 export const GetBookingResponse = zod.object({

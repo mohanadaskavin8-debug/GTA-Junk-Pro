@@ -21,12 +21,17 @@ export default function ManageBooking() {
 
   const { data: booking, isLoading, isError } = useGetBooking(
     isNaN(id) ? 0 : id,
-    { query: { enabled: !isNaN(id) } as any }
+    { token },
+    { query: { enabled: !isNaN(id) && token.length > 0 } as any }
   );
 
   const manage = useManageBooking();
 
-  const [view, setView] = useState<View>("details");
+  // Allow deep-linking straight into a view: ?action=reschedule / ?action=cancel
+  const initialAction = params.get("action");
+  const [view, setView] = useState<View>(
+    initialAction === "reschedule" ? "reschedule" : initialAction === "cancel" ? "confirm-cancel" : "details"
+  );
   const [reschedDate, setReschedDate] = useState<Date | undefined>(undefined);
   const [reschedTime, setReschedTime] = useState("");
   const [pastDateError, setPastDateError] = useState(false);
@@ -147,7 +152,7 @@ export default function ManageBooking() {
   }
 
   // ── Confirm cancel dialog ────────────────────────────────────────────────
-  if (view === "confirm-cancel") {
+  if (view === "confirm-cancel" && isActive) {
     return (
       <Page>
         <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6">
@@ -176,7 +181,7 @@ export default function ManageBooking() {
   }
 
   // ── Reschedule view ──────────────────────────────────────────────────────
-  if (view === "reschedule") {
+  if (view === "reschedule" && isActive) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

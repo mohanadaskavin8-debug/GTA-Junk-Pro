@@ -22,6 +22,7 @@ export * from './dashboardStats';
 export * from './emailCampaign';
 export * from './emailCampaignInput';
 export * from './errorResponse';
+export * from './getBookingParams';
 export * from './healthStatus';
 export * from './listBookingsParams';
 export * from './listBookingsStatus';

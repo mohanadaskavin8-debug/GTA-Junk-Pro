@@ -245,3 +245,7 @@ export const ListBookingsStatus = {
   cancelled: 'cancelled',
 } as const;
 
+export type GetBookingParams = {
+token?: string;
+};
+

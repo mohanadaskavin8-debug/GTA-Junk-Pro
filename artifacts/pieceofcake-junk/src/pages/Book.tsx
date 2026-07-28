@@ -98,6 +98,17 @@ export default function Book() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [bookingRef, setBookingRef] = useState("");
   const [manageUrl, setManageUrl] = useState("");
+  // The API returns an absolute URL (used in emails); wouter's Link needs a
+  // relative path, otherwise it 404s trying to match "https://..." as a route.
+  const managePath = (() => {
+    if (!manageUrl) return "";
+    try {
+      const u = new URL(manageUrl);
+      return u.pathname + u.search;
+    } catch {
+      return manageUrl;
+    }
+  })();
   const [pastDateError, setPastDateError] = useState(false);
 
   const createBooking = useCreateBooking();
@@ -229,14 +240,14 @@ export default function Book() {
             </div>
           </div>
 
-          {manageUrl && (
+          {managePath && (
             <div className="flex gap-3 justify-center mb-4">
-              <Link href={manageUrl}>
+              <Link href={`${managePath}&action=reschedule`}>
                 <Button size="lg" variant="outline" className="rounded-2xl gap-2">
                   <CalendarClock className="w-4 h-4" /> Reschedule
                 </Button>
               </Link>
-              <Link href={manageUrl}>
+              <Link href={`${managePath}&action=cancel`}>
                 <Button size="lg" variant="outline" className="rounded-2xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/5">
                   <X className="w-4 h-4" /> Cancel Booking
                 </Button>

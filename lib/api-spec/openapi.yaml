@@ -316,13 +316,18 @@ paths:
     get:
       operationId: getBooking
       tags: [bookings]
-      summary: Get a single booking
+      summary: Get a single booking (admin session or valid manage token required)
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: number
+        - name: token
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: Booking details
@@ -330,6 +335,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Booking"
+        "403":
+          description: Not authorized to view this booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Not found
           content:

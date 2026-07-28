@@ -30,3 +30,8 @@ Orval v8.23 emits Zod-v4 top-level `zod.email()` for `format: email` fields whil
 `npx drizzle-kit push --force` can crash in `columnsResolver` when one table both drops and adds columns (it wants interactive rename resolution, which dies without a TTY).
 **Why:** push can't tell rename from drop+add non-interactively.
 **How to apply:** run the ALTER TABLE manually via `psql "$DATABASE_URL"`, then re-run push and expect "No changes detected".
+
+## Orval: new query params can collide with generated zod export names
+Adding a query param to an operation makes orval emit an `<OperationName>Params` type in `api-zod/src/generated/types` that can collide with the same-named path-params zod const in `generated/api`, breaking typecheck with an `export *` ambiguity in the package index.
+**Why:** hit when token-gating getBooking — `GetBookingParams` already existed as the path-params zod schema.
+**How to apply:** disambiguate in `lib/api-zod/src/index.ts` with an explicit `export { X } from "./generated/api";` (the API server consumes the zod schema, not the type).

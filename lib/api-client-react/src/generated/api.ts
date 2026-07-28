@@ -33,6 +33,7 @@ import type {
   EmailCampaign,
   EmailCampaignInput,
   ErrorResponse,
+  GetBookingParams,
   HealthStatus,
   ListBookingsParams,
   PublicSettings,
@@ -1187,20 +1188,29 @@ export function useListUpcomingBookings<TData = Awaited<ReturnType<typeof listUp
 
 
 
-export const getGetBookingUrl = (id: number,) => {
+export const getGetBookingUrl = (id: number,
+    params?: GetBookingParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/bookings/${id}`
+  return stringifiedParams.length > 0 ? `/api/bookings/${id}?${stringifiedParams}` : `/api/bookings/${id}`
 }
 
 /**
- * @summary Get a single booking
+ * @summary Get a single booking (admin session or valid manage token required)
  */
-export const getBooking = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Booking> => {
+export const getBooking = async (id: number,
+    params?: GetBookingParams, options?: Parameters<typeof customFetch>[1]): Promise<Booking> => {
 
-  return customFetch<Booking>(getGetBookingUrl(id),
+  return customFetch<Booking>(getGetBookingUrl(id,params),
   {
     ...options,
     method: 'GET'
@@ -1213,23 +1223,25 @@ export const getBooking = async (id: number, options?: Parameters<typeof customF
 
 
 
-export const getGetBookingQueryKey = (id: number,) => {
+export const getGetBookingQueryKey = (id: number,
+    params?: GetBookingParams,) => {
     return [
-    `/api/bookings/${id}`
+    `/api/bookings/${id}`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetBookingQueryOptions = <TData = Awaited<ReturnType<typeof getBooking>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBooking>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetBookingQueryOptions = <TData = Awaited<ReturnType<typeof getBooking>>, TError = ErrorType<ErrorResponse>>(id: number,
+    params?: GetBookingParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBooking>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetBookingQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetBookingQueryKey(id,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBooking>>> = ({ signal }) => getBooking(id, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBooking>>> = ({ signal }) => getBooking(id,params, { signal, ...requestOptions });
 
 
 
@@ -1243,15 +1255,16 @@ export type GetBookingQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get a single booking
+ * @summary Get a single booking (admin session or valid manage token required)
  */
 
 export function useGetBooking<TData = Awaited<ReturnType<typeof getBooking>>, TError = ErrorType<ErrorResponse>>(
- id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBooking>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ id: number,
+    params?: GetBookingParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBooking>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetBookingQueryOptions(id,options)
+  const queryOptions = getGetBookingQueryOptions(id,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

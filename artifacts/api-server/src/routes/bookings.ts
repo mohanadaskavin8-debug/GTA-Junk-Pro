@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, inArray } from "drizzle-orm";
 import { db, bookingsTable } from "@workspace/db";
 import {
   CreateBookingBody,
@@ -24,6 +24,34 @@ const router: IRouter = Router();
 
 type BookingRow = typeof bookingsTable.$inferSelect;
 
+// Keep in sync with ARRIVAL_WINDOWS in the web app (src/lib/constants.ts).
+const ARRIVAL_WINDOWS = new Set([
+  "08:00 AM - 10:00 AM",
+  "10:00 AM - 12:00 PM",
+  "12:00 PM - 02:00 PM",
+  "02:00 PM - 04:00 PM",
+  "04:00 PM - 06:00 PM",
+]);
+
+/** Today's date (YYYY-MM-DD) in the business's timezone. */
+function torontoToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto" }).format(new Date());
+}
+
+/** Returns an error message, or null if the requested schedule is acceptable. */
+function validateSchedule(serviceDate: string, serviceTime: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate) || Number.isNaN(Date.parse(serviceDate))) {
+    return "serviceDate must be a valid YYYY-MM-DD date";
+  }
+  if (serviceDate < torontoToday()) {
+    return "serviceDate cannot be in the past";
+  }
+  if (!ARRIVAL_WINDOWS.has(serviceTime)) {
+    return "serviceTime must be one of the offered arrival windows";
+  }
+  return null;
+}
+
 function formatBooking(b: BookingRow) {
   const { updatedAt: _updatedAt, ...rest } = b;
   return {
@@ -32,7 +60,7 @@ function formatBooking(b: BookingRow) {
   };
 }
 
-router.get("/bookings/upcoming", async (_req, res): Promise<void> => {
+router.get("/bookings/upcoming", requireAdmin, async (_req, res): Promise<void> => {
   const today = new Date();
   const nextWeek = new Date();
   nextWeek.setDate(today.getDate() + 7);
@@ -54,7 +82,7 @@ router.get("/bookings/upcoming", async (_req, res): Promise<void> => {
   res.json(bookings.map(formatBooking));
 });
 
-router.get("/bookings", async (req, res): Promise<void> => {
+router.get("/bookings", requireAdmin, async (req, res): Promise<void> => {
   const query = ListBookingsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -83,6 +111,12 @@ router.post("/bookings", async (req, res): Promise<void> => {
   // broken Zod-v4 syntax for `format: email`), so validate the format here.
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customerEmail)) {
     res.status(400).json({ error: "customerEmail must be a valid email address" });
+    return;
+  }
+
+  const scheduleError = validateSchedule(data.serviceDate, data.serviceTime);
+  if (scheduleError) {
+    res.status(400).json({ error: scheduleError });
     return;
   }
 
@@ -136,6 +170,17 @@ router.get("/bookings/:id", async (req, res): Promise<void> => {
 
   if (!booking) {
     res.status(404).json({ error: "Booking not found" });
+    return;
+  }
+
+  // Bookings contain PII — only the admin or someone holding the signed
+  // manage token (from the confirmation email / success page) may view one.
+  const token = typeof req.query.token === "string" ? req.query.token : "";
+  const isAdmin = req.session.isAdmin === true;
+  const hasValidToken =
+    token.length > 0 && verifyBookingManageToken(booking.id, booking.customerEmail, token);
+  if (!isAdmin && !hasValidToken) {
+    res.status(403).json({ error: "Not authorized to view this booking" });
     return;
   }
 
@@ -247,19 +292,36 @@ router.post("/bookings/:id/manage", async (req, res): Promise<void> => {
   if (action === "cancel") {
     updates.status = "cancelled";
   } else {
-    if (!serviceDate || !serviceTime) {
+    if (typeof serviceDate !== "string" || typeof serviceTime !== "string") {
       res.status(400).json({ error: "serviceDate and serviceTime are required for reschedule" });
+      return;
+    }
+    const scheduleError = validateSchedule(serviceDate, serviceTime);
+    if (scheduleError) {
+      res.status(400).json({ error: scheduleError });
       return;
     }
     updates.serviceDate = serviceDate;
     updates.serviceTime = serviceTime;
   }
 
+  // Atomic guard: only transition bookings that are still active, so two
+  // concurrent requests can't both cancel/reschedule (and double-send emails).
   const [booking] = await db
     .update(bookingsTable)
     .set(updates)
-    .where(eq(bookingsTable.id, params.data.id))
+    .where(
+      and(
+        eq(bookingsTable.id, params.data.id),
+        inArray(bookingsTable.status, ["pending", "confirmed"])
+      )
+    )
     .returning();
+
+  if (!booking) {
+    res.status(400).json({ error: "Booking can no longer be changed — please reload the page" });
+    return;
+  }
 
   const becameCancelled = action === "cancel";
   const timingChanged = action === "reschedule";
@@ -277,7 +339,7 @@ router.post("/bookings/:id/manage", async (req, res): Promise<void> => {
   res.json({ ...formatBooking(booking), manageUrl: bookingManageUrl(booking.id, booking.customerEmail) });
 });
 
-router.delete("/bookings/:id", async (req, res): Promise<void> => {
+router.delete("/bookings/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteBookingParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
