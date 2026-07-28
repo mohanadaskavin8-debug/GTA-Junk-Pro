@@ -370,6 +370,19 @@ export const CreateSubscriberResponse = zod.object({
 
 
 /**
+ * @summary Unsubscribe from promotional emails (customer, via emailed link)
+ */
+export const UnsubscribeBody = zod.object({
+  "email": zod.string(),
+  "token": zod.string()
+})
+
+export const UnsubscribeResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
  * @summary Remove a subscriber (admin)
  */
 export const DeleteSubscriberParams = zod.object({
@@ -387,6 +400,9 @@ export const ListEmailCampaignsResponseItem = zod.object({
   "subject": zod.string(),
   "body": zod.string(),
   "recipientCount": zod.number(),
+  "sentCount": zod.number(),
+  "failedCount": zod.number(),
+  "failureReason": zod.string().nullable(),
   "sentAt": zod.string()
 })
 export const ListEmailCampaignsResponse = zod.array(ListEmailCampaignsResponseItem)
@@ -409,6 +425,9 @@ export const SendEmailCampaignResponse = zod.object({
   "subject": zod.string(),
   "body": zod.string(),
   "recipientCount": zod.number(),
+  "sentCount": zod.number(),
+  "failedCount": zod.number(),
+  "failureReason": zod.string().nullable(),
   "sentAt": zod.string()
 })
 

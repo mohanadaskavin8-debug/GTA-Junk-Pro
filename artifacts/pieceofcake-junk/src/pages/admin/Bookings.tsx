@@ -22,7 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Trash2, CheckCircle, Clock, XCircle, Search, Download, Building2, Truck } from "lucide-react";
+import { Eye, Trash2, CheckCircle, Clock, XCircle, Search, Download, Building2, Truck, CalendarClock } from "lucide-react";
+import { ARRIVAL_WINDOWS } from "@/lib/constants";
 
 const LOAD_SIZE_OPTIONS: LoadSize[] = [
   "small", "1/8", "1/6", "1/4", "1/3", "3/8", "1/2", "5/8", "2/3", "3/4", "5/6", "7/8", "full",
@@ -38,6 +39,7 @@ export default function Bookings() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [viewBooking, setViewBooking] = useState<Booking | null>(null);
+  const [rescheduleDraft, setRescheduleDraft] = useState<{ date: string; time: string } | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -76,6 +78,27 @@ export default function Bookings() {
         }
       }
     });
+  };
+
+  const handleReschedule = (id: number) => {
+    if (!rescheduleDraft) return;
+    updateBooking.mutate(
+      { id, data: { serviceDate: rescheduleDraft.date, serviceTime: rescheduleDraft.time } },
+      {
+        onSuccess: () => {
+          toast({ title: "Booking rescheduled", description: "The customer has been emailed their new time." });
+          invalidate();
+          if (viewBooking?.id === id) {
+            setViewBooking({
+              ...viewBooking,
+              serviceDate: rescheduleDraft.date,
+              serviceTime: rescheduleDraft.time,
+            } as Booking);
+          }
+          setRescheduleDraft(null);
+        },
+      }
+    );
   };
 
   const handleDelete = (id: number) => {
@@ -230,7 +253,7 @@ export default function Bookings() {
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => setViewBooking(booking)}>
+                      <Button variant="ghost" size="icon" onClick={() => { setRescheduleDraft(null); setViewBooking(booking); }}>
                         <Eye className="w-4 h-4" />
                       </Button>
                     </TableCell>
@@ -243,7 +266,7 @@ export default function Bookings() {
       </div>
 
       {/* View Booking Dialog */}
-      <Dialog open={!!viewBooking} onOpenChange={(open) => !open && setViewBooking(null)}>
+      <Dialog open={!!viewBooking} onOpenChange={(open) => { if (!open) { setViewBooking(null); setRescheduleDraft(null); } }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
@@ -276,10 +299,61 @@ export default function Bookings() {
 
                 <div>
                   <h4 className="text-sm font-bold text-muted-foreground mb-2 uppercase tracking-wider">Estimate Visit</h4>
-                  <p className="font-medium text-primary">
-                    {format(new Date(`${viewBooking.serviceDate}T00:00:00`), "EEEE, MMMM d, yyyy")}
-                  </p>
-                  <p className="text-sm font-medium">{viewBooking.serviceTime}</p>
+                  {rescheduleDraft ? (
+                    <div className="space-y-2">
+                      <Input
+                        type="date"
+                        value={rescheduleDraft.date}
+                        onChange={(e) => setRescheduleDraft({ ...rescheduleDraft, date: e.target.value })}
+                      />
+                      <Select
+                        value={rescheduleDraft.time}
+                        onValueChange={(v) => setRescheduleDraft({ ...rescheduleDraft, time: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ARRIVAL_WINDOWS.map((window) => (
+                            <SelectItem key={window} value={window}>{window}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          onClick={() => handleReschedule(viewBooking.id)}
+                          disabled={!rescheduleDraft.date || updateBooking.isPending}
+                        >
+                          {updateBooking.isPending ? "Saving..." : "Save & Email Customer"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setRescheduleDraft(null)}>
+                          Cancel
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Saving instantly emails the customer their new time.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-medium text-primary">
+                        {format(new Date(`${viewBooking.serviceDate}T00:00:00`), "EEEE, MMMM d, yyyy")}
+                      </p>
+                      <p className="text-sm font-medium">{viewBooking.serviceTime}</p>
+                      {(viewBooking.status === "pending" || viewBooking.status === "confirmed") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-2 gap-1.5"
+                          onClick={() => setRescheduleDraft({ date: viewBooking.serviceDate, time: viewBooking.serviceTime })}
+                        >
+                          <CalendarClock className="w-3.5 h-3.5" />
+                          Reschedule
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -296,6 +370,9 @@ export default function Bookings() {
                     <Button size="sm" variant={viewBooking.status === "completed" ? "default" : "outline"} className={viewBooking.status === "completed" ? "bg-green-500" : ""} onClick={() => handleUpdateStatus(viewBooking.id, "completed")}>Completed</Button>
                     <Button size="sm" variant={viewBooking.status === "cancelled" ? "default" : "outline"} className={viewBooking.status === "cancelled" ? "bg-red-500" : ""} onClick={() => handleUpdateStatus(viewBooking.id, "cancelled")}>Cancelled</Button>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Marking a booking cancelled instantly emails the customer a cancellation notice.
+                  </p>
                 </div>
 
                 <div className="bg-muted p-4 rounded-xl border border-border">

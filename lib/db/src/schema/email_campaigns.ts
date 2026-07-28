@@ -7,6 +7,9 @@ export const emailCampaignsTable = pgTable("email_campaigns", {
   subject: text("subject").notNull(),
   body: text("body").notNull(),
   recipientCount: integer("recipient_count").notNull().default(0),
+  sentCount: integer("sent_count").notNull().default(0),
+  failedCount: integer("failed_count").notNull().default(0),
+  failureReason: text("failure_reason"),
   sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -11,5 +11,9 @@ export interface EmailCampaign {
   subject: string;
   body: string;
   recipientCount: number;
+  sentCount: number;
+  failedCount: number;
+  /** @nullable */
+  failureReason: string | null;
   sentAt: string;
 }

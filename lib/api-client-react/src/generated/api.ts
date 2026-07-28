@@ -39,7 +39,9 @@ import type {
   ServiceInput,
   ServicePatch,
   Subscriber,
-  SubscriberInput
+  SubscriberInput,
+  UnsubscribeInput,
+  UnsubscribeResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1550,6 +1552,77 @@ export const useCreateSubscriber = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getCreateSubscriberMutationOptions(options));
+    }
+
+export const getUnsubscribeUrl = () => {
+
+
+
+
+  return `/api/subscribers/unsubscribe`
+}
+
+/**
+ * @summary Unsubscribe from promotional emails (customer, via emailed link)
+ */
+export const unsubscribe = async (unsubscribeInput: UnsubscribeInput, options?: Parameters<typeof customFetch>[1]): Promise<UnsubscribeResult> => {
+
+  return customFetch<UnsubscribeResult>(getUnsubscribeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(unsubscribeInput)
+  }
+);}
+
+
+
+
+
+export const getUnsubscribeMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unsubscribe>>, TError,{data: BodyType<UnsubscribeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof unsubscribe>>, TError,{data: BodyType<UnsubscribeInput>}, TContext> => {
+
+const mutationKey = ['unsubscribe'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unsubscribe>>, {data: BodyType<UnsubscribeInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  unsubscribe(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnsubscribeMutationResult = NonNullable<Awaited<ReturnType<typeof unsubscribe>>>
+    export type UnsubscribeMutationBody = BodyType<UnsubscribeInput>
+    export type UnsubscribeMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Unsubscribe from promotional emails (customer, via emailed link)
+ */
+export const useUnsubscribe = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unsubscribe>>, TError,{data: BodyType<UnsubscribeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof unsubscribe>>,
+        TError,
+        {data: BodyType<UnsubscribeInput>},
+        TContext
+      > => {
+      return useMutation(getUnsubscribeMutationOptions(options));
     }
 
 export const getDeleteSubscriberUrl = (id: number,) => {

@@ -9,7 +9,12 @@ import {
   UpdateBookingBody,
   DeleteBookingParams,
 } from "@workspace/api-zod";
-import { sendBookingConfirmation } from "../lib/email";
+import {
+  sendBookingConfirmation,
+  sendBookingCancellation,
+  sendBookingReschedule,
+} from "../lib/email";
+import { requireAdmin } from "../middleware/requireAdmin";
 
 const router: IRouter = Router();
 
@@ -133,7 +138,7 @@ router.get("/bookings/:id", async (req, res): Promise<void> => {
   res.json(formatBooking(booking));
 });
 
-router.patch("/bookings/:id", async (req, res): Promise<void> => {
+router.patch("/bookings/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateBookingParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -158,15 +163,56 @@ router.patch("/bookings/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  const [existing] = await db
+    .select()
+    .from(bookingsTable)
+    .where(eq(bookingsTable.id, params.data.id));
+
+  if (!existing) {
+    res.status(404).json({ error: "Booking not found" });
+    return;
+  }
+
   const [booking] = await db
     .update(bookingsTable)
     .set(updates)
     .where(eq(bookingsTable.id, params.data.id))
     .returning();
 
-  if (!booking) {
-    res.status(404).json({ error: "Booking not found" });
-    return;
+  // Instant transactional emails. Failures must never block the update,
+  // but they must be loudly visible in the logs.
+  const becameCancelled = booking.status === "cancelled" && existing.status !== "cancelled";
+  const timingChanged =
+    booking.serviceDate !== existing.serviceDate || booking.serviceTime !== existing.serviceTime;
+  const isActive = booking.status === "pending" || booking.status === "confirmed";
+
+  if (becameCancelled) {
+    sendBookingCancellation(booking)
+      .then((result) => {
+        if (result.sent) {
+          req.log.info({ bookingId: booking.id, to: booking.customerEmail }, "Cancellation email sent");
+        } else {
+          req.log.error({ bookingId: booking.id, reason: result.reason }, "Cancellation email NOT sent");
+        }
+      })
+      .catch((err) => {
+        req.log.error({ err, bookingId: booking.id }, "Cancellation email failed");
+      });
+  } else if (timingChanged && isActive) {
+    sendBookingReschedule(booking, {
+      serviceDate: existing.serviceDate,
+      serviceTime: existing.serviceTime,
+    })
+      .then((result) => {
+        if (result.sent) {
+          req.log.info({ bookingId: booking.id, to: booking.customerEmail }, "Reschedule email sent");
+        } else {
+          req.log.error({ bookingId: booking.id, reason: result.reason }, "Reschedule email NOT sent");
+        }
+      })
+      .catch((err) => {
+        req.log.error({ err, bookingId: booking.id }, "Reschedule email failed");
+      });
   }
 
   res.json(formatBooking(booking));

@@ -30,3 +30,5 @@ export * from './serviceInput';
 export * from './servicePatch';
 export * from './subscriber';
 export * from './subscriberInput';
+export * from './unsubscribeInput';
+export * from './unsubscribeResult';

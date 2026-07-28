@@ -427,6 +427,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /subscribers/unsubscribe:
+    post:
+      operationId: unsubscribe
+      tags: [subscribers]
+      summary: Unsubscribe from promotional emails (customer, via emailed link)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnsubscribeInput"
+      responses:
+        "200":
+          description: Unsubscribed (idempotent)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnsubscribeResult"
+        "400":
+          description: Invalid or expired link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /subscribers/{id}:
     delete:
       operationId: deleteSubscriber
@@ -746,10 +771,26 @@ components:
         name:
           type: string
 
+    UnsubscribeInput:
+      type: object
+      required: [email, token]
+      properties:
+        email:
+          type: string
+        token:
+          type: string
+
+    UnsubscribeResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+
     # ── Email Campaigns ──────────────────────────────────────────────────────
     EmailCampaign:
       type: object
-      required: [id, subject, body, recipientCount, sentAt]
+      required: [id, subject, body, recipientCount, sentCount, failedCount, failureReason, sentAt]
       properties:
         id:
           type: number
@@ -759,6 +800,12 @@ components:
           type: string
         recipientCount:
           type: number
+        sentCount:
+          type: number
+        failedCount:
+          type: number
+        failureReason:
+          type: ["string", "null"]
         sentAt:
           type: string
 

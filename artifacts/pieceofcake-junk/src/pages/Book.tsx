@@ -33,15 +33,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { ARRIVAL_WINDOWS } from "@/lib/constants";
 import LoadTruckVisual from "@/components/booking/LoadTruckVisual";
-
-const ARRIVAL_WINDOWS = [
-  "08:00 AM - 10:00 AM",
-  "10:00 AM - 12:00 PM",
-  "12:00 PM - 02:00 PM",
-  "02:00 PM - 04:00 PM",
-  "04:00 PM - 06:00 PM",
-];
 
 export const LOAD_STOPS = [
   { value: "small", label: "Small Load", desc: "Just a few items — a chair, a TV, or a couple of boxes", fraction: 0.05 },

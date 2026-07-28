@@ -174,11 +174,24 @@ export interface SubscriberInput {
   name?: string;
 }
 
+export interface UnsubscribeInput {
+  email: string;
+  token: string;
+}
+
+export interface UnsubscribeResult {
+  success: boolean;
+}
+
 export interface EmailCampaign {
   id: number;
   subject: string;
   body: string;
   recipientCount: number;
+  sentCount: number;
+  failedCount: number;
+  /** @nullable */
+  failureReason: string | null;
   sentAt: string;
 }
 
