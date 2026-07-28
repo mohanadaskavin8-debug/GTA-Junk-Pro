@@ -220,6 +220,12 @@ export interface EmailCampaignInput {
   body: string;
 }
 
+export interface AddressSuggestion {
+  streetAddress: string;
+  city: string;
+  postalCode: string;
+}
+
 export interface DashboardStats {
   totalBookings: number;
   pendingBookings: number;
@@ -247,5 +253,9 @@ export const ListBookingsStatus = {
 
 export type GetBookingParams = {
 token?: string;
+};
+
+export type SearchAddressesParams = {
+q: string;
 };
 

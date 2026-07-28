@@ -2,39 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface NominatimResult {
-  place_id: number;
-  display_name: string;
-  address: {
-    house_number?: string;
-    road?: string;
-    neighbourhood?: string;
-    suburb?: string;
-    city?: string;
-    town?: string;
-    village?: string;
-    county?: string;
-    state?: string;
-    postcode?: string;
-  };
-}
-
-interface ParsedAddress {
-  streetAddress: string;
-  city: string;
-  postalCode: string;
-  displayName: string;
-}
-
-function parseNominatim(result: NominatimResult): ParsedAddress {
-  const a = result.address;
-  const streetParts = [a.house_number, a.road].filter(Boolean);
-  const streetAddress = streetParts.join(" ");
-  const city = a.city || a.town || a.village || a.suburb || a.county || "";
-  const postalCode = a.postcode?.replace(/\s/g, " ").toUpperCase() || "";
-  return { streetAddress, city, postalCode, displayName: result.display_name };
-}
+import {
+  searchAddresses,
+  type AddressSuggestion,
+} from "@workspace/api-client-react";
 
 interface Props {
   value: string;
@@ -51,11 +22,12 @@ export default function AddressAutocomplete({
   placeholder = "123 Main St",
   className,
 }: Props) {
-  const [suggestions, setSuggestions] = useState<ParsedAddress[]>([]);
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,31 +41,25 @@ export default function AddressAutocomplete({
     }
 
     debounceRef.current = setTimeout(async () => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       setLoading(true);
       try {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed + ", Ontario, Canada")}&format=json&addressdetails=1&countrycodes=ca&limit=6`;
-        const resp = await fetch(url, {
-          headers: { "Accept-Language": "en" },
-        });
-        if (!resp.ok) return;
-        const data: NominatimResult[] = await resp.json();
-        const parsed = data
-          .map(parseNominatim)
-          .filter((r) => r.streetAddress.length > 0);
-        // Dedupe by street address
-        const seen = new Set<string>();
-        const unique = parsed.filter((r) => {
-          if (seen.has(r.streetAddress)) return false;
-          seen.add(r.streetAddress);
-          return true;
-        });
-        setSuggestions(unique.slice(0, 5));
-        setOpen(unique.length > 0);
+        // Search goes through our own API, which caches results and respects
+        // the upstream provider's rate limits.
+        const results = await searchAddresses(
+          { q: trimmed },
+          { signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        setSuggestions(results);
+        setOpen(results.length > 0);
         setSelectedIndex(-1);
       } catch {
         // silently ignore network errors — plain text input still works
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }, 500);
   }, [value]);
@@ -109,7 +75,7 @@ export default function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const handleSelect = (suggestion: ParsedAddress) => {
+  const handleSelect = (suggestion: AddressSuggestion) => {
     onChange(suggestion.streetAddress);
     onSelect(suggestion.streetAddress, suggestion.city, suggestion.postalCode);
     setOpen(false);

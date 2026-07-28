@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './addressSuggestion';
 export * from './adminCredentials';
 export * from './authStatus';
 export * from './booking';
@@ -28,6 +29,7 @@ export * from './listBookingsParams';
 export * from './listBookingsStatus';
 export * from './loadSize';
 export * from './publicSettings';
+export * from './searchAddressesParams';
 export * from './service';
 export * from './serviceInput';
 export * from './servicePatch';

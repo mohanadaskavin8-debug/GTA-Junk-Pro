@@ -388,6 +388,21 @@ export const ManageBookingResponse = zod.object({
 
 
 /**
+ * @summary Address autocomplete (proxied to OpenStreetMap with caching + throttling)
+ */
+export const SearchAddressesQueryParams = zod.object({
+  "q": zod.coerce.string()
+})
+
+export const SearchAddressesResponseItem = zod.object({
+  "streetAddress": zod.string(),
+  "city": zod.string(),
+  "postalCode": zod.string()
+})
+export const SearchAddressesResponse = zod.array(SearchAddressesResponseItem)
+
+
+/**
  * @summary List all email subscribers (admin)
  */
 export const ListSubscribersResponseItem = zod.object({

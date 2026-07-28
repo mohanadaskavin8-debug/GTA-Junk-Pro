@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddressSuggestion,
   AdminCredentials,
   AuthStatus,
   Booking,
@@ -37,6 +38,7 @@ import type {
   HealthStatus,
   ListBookingsParams,
   PublicSettings,
+  SearchAddressesParams,
   Service,
   ServiceInput,
   ServicePatch,
@@ -1491,6 +1493,90 @@ export const useManageBooking = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getManageBookingMutationOptions(options));
     }
+
+export const getSearchAddressesUrl = (params: SearchAddressesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/geo/search?${stringifiedParams}` : `/api/geo/search`
+}
+
+/**
+ * @summary Address autocomplete (proxied to OpenStreetMap with caching + throttling)
+ */
+export const searchAddresses = async (params: SearchAddressesParams, options?: Parameters<typeof customFetch>[1]): Promise<AddressSuggestion[]> => {
+
+  return customFetch<AddressSuggestion[]>(getSearchAddressesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchAddressesQueryKey = (params?: SearchAddressesParams,) => {
+    return [
+    `/api/geo/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchAddressesQueryOptions = <TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ErrorType<ErrorResponse>>(params: SearchAddressesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchAddressesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchAddresses>>> = ({ signal }) => searchAddresses(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchAddressesQueryResult = NonNullable<Awaited<ReturnType<typeof searchAddresses>>>
+export type SearchAddressesQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Address autocomplete (proxied to OpenStreetMap with caching + throttling)
+ */
+
+export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ErrorType<ErrorResponse>>(
+ params: SearchAddressesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchAddressesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListSubscribersUrl = () => {
 

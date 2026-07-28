@@ -442,6 +442,33 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   # ── Subscribers ───────────────────────────────────────────────────────────
+  /geo/search:
+    get:
+      operationId: searchAddresses
+      tags: [geo]
+      summary: Address autocomplete (proxied to OpenStreetMap with caching + throttling)
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Up to 5 address suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddressSuggestion"
+        "400":
+          description: Missing query
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /subscribers:
     get:
       operationId: listSubscribers
@@ -895,6 +922,17 @@ components:
           minLength: 1
 
     # ── Dashboard ────────────────────────────────────────────────────────────
+    AddressSuggestion:
+      type: object
+      required: [streetAddress, city, postalCode]
+      properties:
+        streetAddress:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+
     DashboardStats:
       type: object
       required: [totalBookings, pendingBookings, confirmedBookings, completedBookings, cancelledBookings, totalSubscribers, bookingsToday, bookingsThisWeek]
