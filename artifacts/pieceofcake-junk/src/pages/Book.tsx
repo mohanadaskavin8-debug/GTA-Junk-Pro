@@ -18,7 +18,14 @@ import {
   X,
 } from "lucide-react";
 
-import { useCreateBooking, useCreateSubscriber } from "@workspace/api-client-react";
+import {
+  useCreateBooking,
+  useCreateSubscriber,
+  useGetAvailability,
+  getGetAvailabilityQueryKey,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +43,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ARRIVAL_WINDOWS } from "@/lib/constants";
 import LoadTruckVisual from "@/components/booking/LoadTruckVisual";
 
 export const LOAD_STOPS = [
@@ -112,6 +118,9 @@ export default function Book() {
   const [pastDateError, setPastDateError] = useState(false);
 
   const createBooking = useCreateBooking();
+  const { data: availability, isLoading: availabilityLoading } = useGetAvailability();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const createSubscriber = useCreateSubscriber();
 
   const form = useForm<BookingFormValues>({
@@ -174,6 +183,28 @@ export default function Book() {
           if (data.subscribeToNewsletter && data.customerEmail) {
             createSubscriber.mutate({
               data: { email: data.customerEmail, name: data.customerName },
+            });
+          }
+        },
+        onError: (error) => {
+          const status = (error as { status?: number }).status;
+          const serverMessage = (error as { data?: { error?: string } }).data?.error;
+          if (status === 400 && serverMessage && /day|window|serviceDate|serviceTime/i.test(serverMessage)) {
+            // Availability may have changed while the form was being filled —
+            // refresh it and send the customer back to re-pick date & window.
+            queryClient.invalidateQueries({ queryKey: getGetAvailabilityQueryKey() });
+            setStep(2);
+            window.scrollTo(0, 0);
+            toast({
+              title: "That time is no longer available",
+              description: serverMessage,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Booking failed",
+              description: serverMessage ?? "Something went wrong — please try again.",
+              variant: "destructive",
             });
           }
         },
@@ -413,7 +444,10 @@ export default function Book() {
                                   setPastDateError(false);
                                 }
                               }}
-                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                                (availability ? !availability.days.includes(date.getDay()) : false)
+                              }
                               className="rounded-2xl border shadow-sm"
                             />
                           </FormControl>
@@ -452,7 +486,12 @@ export default function Book() {
                       render={({ field }) => (
                         <FormItem>
                           <div className="grid grid-cols-1 gap-3">
-                            {ARRIVAL_WINDOWS.map((slot) => (
+                            {availabilityLoading && (
+                              <p className="text-center text-sm text-muted-foreground py-4">
+                                Loading arrival windows…
+                              </p>
+                            )}
+                            {(availability?.windows ?? []).map((w) => w.label).map((slot) => (
                               <button
                                 type="button"
                                 key={slot}

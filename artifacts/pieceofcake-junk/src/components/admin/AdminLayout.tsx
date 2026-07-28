@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Settings,
-  ExternalLink
+  ExternalLink,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -46,6 +47,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { name: "Bookings", path: "/admin/bookings", icon: CalendarDays },
     { name: "Services", path: "/admin/services", icon: Briefcase },
     { name: "Email Marketing", path: "/admin/email", icon: Mail },
+    { name: "Availability", path: "/admin/availability", icon: Clock },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 

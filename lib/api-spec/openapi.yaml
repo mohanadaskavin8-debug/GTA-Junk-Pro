@@ -469,6 +469,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /availability:
+    get:
+      operationId: getAvailability
+      tags: [availability]
+      summary: Get booking availability (days of week + arrival windows)
+      responses:
+        "200":
+          description: Current availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Availability"
+    put:
+      operationId: updateAvailability
+      tags: [availability]
+      summary: Update booking availability (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvailabilityInput"
+      responses:
+        "200":
+          description: Updated availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Availability"
+        "400":
+          description: Invalid availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /subscribers:
     get:
       operationId: listSubscribers
@@ -922,6 +958,60 @@ components:
           minLength: 1
 
     # ── Dashboard ────────────────────────────────────────────────────────────
+    AvailabilityWindowInput:
+      type: object
+      required: [start, end]
+      properties:
+        start:
+          type: string
+          description: 24-hour HH:MM start time, e.g. "08:00"
+        end:
+          type: string
+          description: 24-hour HH:MM end time, e.g. "10:00"
+
+    AvailabilityWindow:
+      type: object
+      required: [start, end, label]
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+        label:
+          type: string
+          description: Customer-facing label, e.g. "08:00 AM - 10:00 AM"
+
+    Availability:
+      type: object
+      required: [days, windows]
+      properties:
+        days:
+          type: array
+          items:
+            type: number
+            minimum: 0
+            maximum: 6
+          description: Available days of week, 0=Sunday through 6=Saturday
+        windows:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvailabilityWindow"
+
+    AvailabilityInput:
+      type: object
+      required: [days, windows]
+      properties:
+        days:
+          type: array
+          items:
+            type: number
+            minimum: 0
+            maximum: 6
+        windows:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvailabilityWindowInput"
+
     AddressSuggestion:
       type: object
       required: [streetAddress, city, postalCode]

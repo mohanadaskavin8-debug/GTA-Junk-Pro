@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link, useSearch } from "wouter";
 import { format } from "date-fns";
-import { useGetBooking, useManageBooking } from "@workspace/api-client-react";
+import { useGetBooking, useManageBooking, useGetAvailability } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, CalendarClock, X, AlertTriangle, ArrowLeft } from "lucide-react";
-import { ARRIVAL_WINDOWS } from "@/lib/constants";
 
 type View = "details" | "reschedule" | "confirm-cancel" | "cancelled" | "rescheduled" | "error";
 
@@ -26,6 +25,7 @@ export default function ManageBooking() {
   );
 
   const manage = useManageBooking();
+  const { data: availability } = useGetAvailability();
 
   // Allow deep-linking straight into a view: ?action=reschedule / ?action=cancel
   const initialAction = params.get("action");
@@ -204,7 +204,9 @@ export default function ManageBooking() {
             selected={reschedDate}
             onSelect={(d) => { setPastDateError(false); setReschedDate(d); }}
             onDayClick={(d) => { if (d < today) { setPastDateError(true); } else { setPastDateError(false); } }}
-            disabled={(d) => d < today}
+            disabled={(d) =>
+              d < today || (availability ? !availability.days.includes(d.getDay()) : false)
+            }
             className="rounded-2xl border shadow-sm"
           />
 
@@ -221,8 +223,8 @@ export default function ManageBooking() {
                   <SelectValue placeholder="Pick an arrival window" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ARRIVAL_WINDOWS.map((w) => (
-                    <SelectItem key={w} value={w}>{w}</SelectItem>
+                  {(availability?.windows ?? []).map((w) => (
+                    <SelectItem key={w.label} value={w.label}>{w.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -403,6 +403,55 @@ export const SearchAddressesResponse = zod.array(SearchAddressesResponseItem)
 
 
 /**
+ * @summary Get booking availability (days of week + arrival windows)
+ */
+export const getAvailabilityResponseDaysItemMin = 0;
+export const getAvailabilityResponseDaysItemMax = 6;
+
+
+
+export const GetAvailabilityResponse = zod.object({
+  "days": zod.array(zod.number().min(getAvailabilityResponseDaysItemMin).max(getAvailabilityResponseDaysItemMax)).describe('Available days of week, 0=Sunday through 6=Saturday'),
+  "windows": zod.array(zod.object({
+  "start": zod.string(),
+  "end": zod.string(),
+  "label": zod.string().describe('Customer-facing label, e.g. \"08:00 AM - 10:00 AM\"')
+}))
+})
+
+
+/**
+ * @summary Update booking availability (admin)
+ */
+export const updateAvailabilityBodyDaysItemMin = 0;
+export const updateAvailabilityBodyDaysItemMax = 6;
+
+
+
+export const UpdateAvailabilityBody = zod.object({
+  "days": zod.array(zod.number().min(updateAvailabilityBodyDaysItemMin).max(updateAvailabilityBodyDaysItemMax)),
+  "windows": zod.array(zod.object({
+  "start": zod.string().describe('24-hour HH:MM start time, e.g. \"08:00\"'),
+  "end": zod.string().describe('24-hour HH:MM end time, e.g. \"10:00\"')
+}))
+})
+
+export const updateAvailabilityResponseDaysItemMin = 0;
+export const updateAvailabilityResponseDaysItemMax = 6;
+
+
+
+export const UpdateAvailabilityResponse = zod.object({
+  "days": zod.array(zod.number().min(updateAvailabilityResponseDaysItemMin).max(updateAvailabilityResponseDaysItemMax)).describe('Available days of week, 0=Sunday through 6=Saturday'),
+  "windows": zod.array(zod.object({
+  "start": zod.string(),
+  "end": zod.string(),
+  "label": zod.string().describe('Customer-facing label, e.g. \"08:00 AM - 10:00 AM\"')
+}))
+})
+
+
+/**
  * @summary List all email subscribers (admin)
  */
 export const ListSubscribersResponseItem = zod.object({

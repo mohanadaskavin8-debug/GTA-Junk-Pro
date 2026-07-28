@@ -23,6 +23,8 @@ import type {
   AddressSuggestion,
   AdminCredentials,
   AuthStatus,
+  Availability,
+  AvailabilityInput,
   Booking,
   BookingInput,
   BookingManageInput,
@@ -1577,6 +1579,154 @@ export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddre
 
 
 
+
+export const getGetAvailabilityUrl = () => {
+
+
+
+
+  return `/api/availability`
+}
+
+/**
+ * @summary Get booking availability (days of week + arrival windows)
+ */
+export const getAvailability = async ( options?: Parameters<typeof customFetch>[1]): Promise<Availability> => {
+
+  return customFetch<Availability>(getGetAvailabilityUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAvailabilityQueryKey = () => {
+    return [
+    `/api/availability`
+    ] as const;
+    }
+
+
+export const getGetAvailabilityQueryOptions = <TData = Awaited<ReturnType<typeof getAvailability>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAvailabilityQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAvailability>>> = ({ signal }) => getAvailability({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAvailabilityQueryResult = NonNullable<Awaited<ReturnType<typeof getAvailability>>>
+export type GetAvailabilityQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get booking availability (days of week + arrival windows)
+ */
+
+export function useGetAvailability<TData = Awaited<ReturnType<typeof getAvailability>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAvailabilityQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAvailabilityUrl = () => {
+
+
+
+
+  return `/api/availability`
+}
+
+/**
+ * @summary Update booking availability (admin)
+ */
+export const updateAvailability = async (availabilityInput: AvailabilityInput, options?: Parameters<typeof customFetch>[1]): Promise<Availability> => {
+
+  return customFetch<Availability>(getUpdateAvailabilityUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(availabilityInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAvailabilityMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvailability>>, TError,{data: BodyType<AvailabilityInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAvailability>>, TError,{data: BodyType<AvailabilityInput>}, TContext> => {
+
+const mutationKey = ['updateAvailability'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAvailability>>, {data: BodyType<AvailabilityInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateAvailability(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAvailabilityMutationResult = NonNullable<Awaited<ReturnType<typeof updateAvailability>>>
+    export type UpdateAvailabilityMutationBody = BodyType<AvailabilityInput>
+    export type UpdateAvailabilityMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update booking availability (admin)
+ */
+export const useUpdateAvailability = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvailability>>, TError,{data: BodyType<AvailabilityInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAvailability>>,
+        TError,
+        {data: BodyType<AvailabilityInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateAvailabilityMutationOptions(options));
+    }
 
 export const getListSubscribersUrl = () => {
 

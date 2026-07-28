@@ -17,6 +17,7 @@ import AdminBookings from "@/pages/admin/Bookings";
 import AdminServices from "@/pages/admin/Services";
 import AdminEmail from "@/pages/admin/Email";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminAvailability from "@/pages/admin/Availability";
 
 import NotFound from "@/pages/not-found";
 
@@ -45,6 +46,9 @@ function Router() {
       </Route>
       <Route path="/admin/email">
         {() => <AdminLayout><AdminEmail /></AdminLayout>}
+      </Route>
+      <Route path="/admin/availability">
+        {() => <AdminLayout><AdminAvailability /></AdminLayout>}
       </Route>
       <Route path="/admin/settings">
         {() => <AdminLayout><AdminSettings /></AdminLayout>}

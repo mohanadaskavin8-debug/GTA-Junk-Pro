@@ -19,38 +19,11 @@ import {
   verifyBookingManageToken,
   bookingManageUrl,
 } from "../lib/unsubscribe";
+import { validateSchedule } from "../lib/availability";
 
 const router: IRouter = Router();
 
 type BookingRow = typeof bookingsTable.$inferSelect;
-
-// Keep in sync with ARRIVAL_WINDOWS in the web app (src/lib/constants.ts).
-const ARRIVAL_WINDOWS = new Set([
-  "08:00 AM - 10:00 AM",
-  "10:00 AM - 12:00 PM",
-  "12:00 PM - 02:00 PM",
-  "02:00 PM - 04:00 PM",
-  "04:00 PM - 06:00 PM",
-]);
-
-/** Today's date (YYYY-MM-DD) in the business's timezone. */
-function torontoToday(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto" }).format(new Date());
-}
-
-/** Returns an error message, or null if the requested schedule is acceptable. */
-function validateSchedule(serviceDate: string, serviceTime: string): string | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate) || Number.isNaN(Date.parse(serviceDate))) {
-    return "serviceDate must be a valid YYYY-MM-DD date";
-  }
-  if (serviceDate < torontoToday()) {
-    return "serviceDate cannot be in the past";
-  }
-  if (!ARRIVAL_WINDOWS.has(serviceTime)) {
-    return "serviceTime must be one of the offered arrival windows";
-  }
-  return null;
-}
 
 function formatBooking(b: BookingRow) {
   const { updatedAt: _updatedAt, ...rest } = b;
@@ -114,7 +87,7 @@ router.post("/bookings", async (req, res): Promise<void> => {
     return;
   }
 
-  const scheduleError = validateSchedule(data.serviceDate, data.serviceTime);
+  const scheduleError = await validateSchedule(data.serviceDate, data.serviceTime);
   if (scheduleError) {
     res.status(400).json({ error: scheduleError });
     return;
@@ -296,7 +269,7 @@ router.post("/bookings/:id/manage", async (req, res): Promise<void> => {
       res.status(400).json({ error: "serviceDate and serviceTime are required for reschedule" });
       return;
     }
-    const scheduleError = validateSchedule(serviceDate, serviceTime);
+    const scheduleError = await validateSchedule(serviceDate, serviceTime);
     if (scheduleError) {
       res.status(400).json({ error: scheduleError });
       return;

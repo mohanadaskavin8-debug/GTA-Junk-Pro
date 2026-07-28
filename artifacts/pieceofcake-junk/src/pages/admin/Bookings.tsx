@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, Trash2, CheckCircle, Clock, XCircle, Search, Download, Building2, Truck, CalendarClock } from "lucide-react";
-import { ARRIVAL_WINDOWS } from "@/lib/constants";
+import { useGetAvailability } from "@workspace/api-client-react";
 
 const LOAD_SIZE_OPTIONS: LoadSize[] = [
   "small", "1/8", "1/6", "1/4", "1/3", "3/8", "1/2", "5/8", "2/3", "3/4", "5/6", "7/8", "full",
@@ -43,6 +43,7 @@ export default function Bookings() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { data: availability } = useGetAvailability();
 
   const queryParams: { status?: BookingStatus } = {};
   if (statusFilter !== "all") queryParams.status = statusFilter as BookingStatus;
@@ -314,8 +315,8 @@ export default function Bookings() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {ARRIVAL_WINDOWS.map((window) => (
-                            <SelectItem key={window} value={window}>{window}</SelectItem>
+                          {(availability?.windows ?? []).map((w) => (
+                            <SelectItem key={w.label} value={w.label}>{w.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

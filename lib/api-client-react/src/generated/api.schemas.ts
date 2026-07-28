@@ -220,6 +220,39 @@ export interface EmailCampaignInput {
   body: string;
 }
 
+export interface AvailabilityWindowInput {
+  /** 24-hour HH:MM start time, e.g. "08:00" */
+  start: string;
+  /** 24-hour HH:MM end time, e.g. "10:00" */
+  end: string;
+}
+
+export interface AvailabilityWindow {
+  start: string;
+  end: string;
+  /** Customer-facing label, e.g. "08:00 AM - 10:00 AM" */
+  label: string;
+}
+
+export interface Availability {
+  /**
+     * Available days of week, 0=Sunday through 6=Saturday
+     * @items.minimum 0
+     * @items.maximum 6
+     */
+  days: number[];
+  windows: AvailabilityWindow[];
+}
+
+export interface AvailabilityInput {
+  /**
+     * @items.minimum 0
+     * @items.maximum 6
+     */
+  days: number[];
+  windows: AvailabilityWindowInput[];
+}
+
 export interface AddressSuggestion {
   streetAddress: string;
   city: string;

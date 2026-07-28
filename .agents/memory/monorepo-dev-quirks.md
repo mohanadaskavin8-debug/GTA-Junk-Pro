@@ -35,3 +35,7 @@ Orval v8.23 emits Zod-v4 top-level `zod.email()` for `format: email` fields whil
 Adding a query param to an operation makes orval emit an `<OperationName>Params` type in `api-zod/src/generated/types` that can collide with the same-named path-params zod const in `generated/api`, breaking typecheck with an `export *` ambiguity in the package index.
 **Why:** hit when token-gating getBooking — `GetBookingParams` already existed as the path-params zod schema.
 **How to apply:** disambiguate in `lib/api-zod/src/index.ts` with an explicit `export { X } from "./generated/api";` (the API server consumes the zod schema, not the type).
+
+## More orval pitfalls (2026-07-28)
+- Bare `type: integer` array items in openapi.yaml make orval emit `zod.int()` — a zod v4 API that crashes zod 3.x at import time (server dies on boot). Use `type: number` + `minimum`/`maximum` instead.
+- Testing-subagent followups use `sendFollowup({ name, message })` — the param is `message`, not `task`. Subagent names collide across a session; reuse the renamed handle the platform reports.

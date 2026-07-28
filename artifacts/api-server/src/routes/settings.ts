@@ -33,7 +33,7 @@ export async function loadBusinessSettings(): Promise<Record<string, string>> {
   return Object.fromEntries(BUSINESS_KEYS.map((key) => [key, map[key]]));
 }
 
-async function upsertSetting(key: string, value: string): Promise<void> {
+export async function upsertSetting(key: string, value: string): Promise<void> {
   await db
     .insert(settingsTable)
     .values({ key, value, updatedAt: new Date() })
