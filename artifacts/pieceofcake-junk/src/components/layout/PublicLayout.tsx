@@ -12,7 +12,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const { data: settings } = useGetPublicSettings();
 
   const phone = settings?.businessPhone ?? "437-775-9626";
-  const email = settings?.businessEmail ?? "payments@pieceofcakejunk.com";
+  const email = settings?.businessEmail ?? "info@pieceofcakejunk.com";
   const serviceArea = settings?.serviceArea ?? "Greater Toronto Area";
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               </a>
               <Link href="/book">
                 <Button className="rounded-full shadow-lg hover:shadow-primary/25 hover:scale-105 transition-all group font-bold">
-                  Book Online
+                  Book Free Estimate
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -133,7 +133,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               </a>
               <Link href="/book">
                 <Button size="lg" className="w-full text-lg rounded-xl h-14">
-                  Book Online Now
+                  Book Free Estimate
                 </Button>
               </Link>
             </div>

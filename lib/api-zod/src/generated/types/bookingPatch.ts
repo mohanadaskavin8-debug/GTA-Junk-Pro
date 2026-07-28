@@ -5,12 +5,13 @@
  * Piece of Cake Junk - API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { BookingPatchPaymentStatus } from './bookingPatchPaymentStatus';
 import type { BookingPatchStatus } from './bookingPatchStatus';
+import type { LoadSize } from './loadSize';
 
 export interface BookingPatch {
   status?: BookingPatchStatus;
-  paymentStatus?: BookingPatchPaymentStatus;
-  totalAmount?: number;
+  serviceDate?: string;
+  serviceTime?: string;
+  loadSize?: LoadSize;
   notes?: string;
 }

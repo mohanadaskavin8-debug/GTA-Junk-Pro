@@ -7,7 +7,7 @@
  */
 
 export interface BusinessSettingsInput {
-  etransferEmail?: string;
+  emailFromAddress?: string;
   businessPhone?: string;
   businessEmail?: string;
   serviceArea?: string;

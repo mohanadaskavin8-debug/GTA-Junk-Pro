@@ -23,10 +23,10 @@ import {
 } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Banknote, KeyRound } from "lucide-react";
+import { Mail, KeyRound } from "lucide-react";
 
 const businessSchema = z.object({
-  etransferEmail: z.string().email("Enter a valid email"),
+  emailFromAddress: z.string().min(5, "Required"),
   businessPhone: z.string().min(1, "Required"),
   businessEmail: z.string().email("Enter a valid email"),
   serviceArea: z.string().min(1, "Required"),
@@ -53,7 +53,7 @@ export default function Settings() {
   const businessForm = useForm<z.infer<typeof businessSchema>>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
-      etransferEmail: "",
+      emailFromAddress: "",
       businessPhone: "",
       businessEmail: "",
       serviceArea: "",
@@ -129,12 +129,12 @@ export default function Settings() {
         <CardContent className="p-6 md:p-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-              <Banknote className="w-6 h-6" />
+              <Mail className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold font-display">Business Details</h2>
               <p className="text-sm text-muted-foreground">
-                These appear on the customer site — payment instructions, header, and footer.
+                These appear on the customer site — confirmation emails, plus the site header and footer.
               </p>
             </div>
           </div>
@@ -143,13 +143,18 @@ export default function Settings() {
             <form onSubmit={businessForm.handleSubmit(onSaveBusiness)} className="space-y-5">
               <FormField
                 control={businessForm.control}
-                name="etransferEmail"
+                name="emailFromAddress"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Interac e-Transfer Email</FormLabel>
+                    <FormLabel>Confirmation Email Sender</FormLabel>
                     <FormControl>
-                      <Input placeholder="payments@example.com" {...field} />
+                      <Input placeholder="Piece of Cake Junk <bookings@yourdomain.com>" {...field} />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Booking confirmations are sent from this address. Use a sender on your
+                      verified Resend domain — until your domain is verified, leave this as
+                      the default onboarding sender.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

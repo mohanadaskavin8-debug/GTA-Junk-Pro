@@ -12,11 +12,7 @@ export interface DashboardStats {
   confirmedBookings: number;
   completedBookings: number;
   cancelledBookings: number;
-  unpaidBookings: number;
-  paidBookings: number;
   totalSubscribers: number;
-  totalRevenue: number;
-  pendingRevenue: number;
   bookingsToday: number;
   bookingsThisWeek: number;
 }

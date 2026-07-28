@@ -1,7 +1,24 @@
-import { pgTable, text, serial, timestamp, numeric, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { servicesTable } from "./services";
+
+/** Truck load sizes, smallest to largest. */
+export const LOAD_SIZES = [
+  "small",
+  "1/8",
+  "1/6",
+  "1/4",
+  "1/3",
+  "3/8",
+  "1/2",
+  "5/8",
+  "2/3",
+  "3/4",
+  "5/6",
+  "7/8",
+  "full",
+] as const;
+export type LoadSize = (typeof LOAD_SIZES)[number];
 
 export const bookingsTable = pgTable("bookings", {
   id: serial("id").primaryKey(),
@@ -11,12 +28,15 @@ export const bookingsTable = pgTable("bookings", {
   address: text("address").notNull(),
   city: text("city").notNull().default("Toronto"),
   postalCode: text("postal_code").notNull().default(""),
+  /** Date of the free in-person estimate. */
   serviceDate: date("service_date", { mode: "string" }).notNull(),
+  /** 2-hour arrival window, e.g. "08:00 AM - 10:00 AM". */
   serviceTime: text("service_time").notNull(),
-  serviceId: serial("service_id").references(() => servicesTable.id),
+  /** Estimated truck load size chosen by the customer. */
+  loadSize: text("load_size").notNull().default("small"),
+  isBusiness: boolean("is_business").notNull().default(false),
+  businessName: text("business_name"),
   status: text("status").notNull().default("pending"),
-  paymentStatus: text("payment_status").notNull().default("unpaid"),
-  totalAmount: numeric("total_amount", { precision: 10, scale: 2 }),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

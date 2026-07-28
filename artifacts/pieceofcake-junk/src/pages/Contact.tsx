@@ -23,7 +23,7 @@ export default function Contact() {
   const createBooking = useCreateBooking();
   const { data: settings } = useGetPublicSettings();
   const phone = settings?.businessPhone ?? "437-775-9626";
-  const email = settings?.businessEmail ?? "payments@pieceofcakejunk.com";
+  const email = settings?.businessEmail ?? "info@pieceofcakejunk.com";
   const serviceArea = settings?.serviceArea ?? "Greater Toronto Area";
 
   const form = useForm<z.infer<typeof contactSchema>>({
@@ -38,6 +38,7 @@ export default function Contact() {
         address: "TBD", // Dummy data to pass schema since contact form doesn't ask for it
         serviceDate: format(new Date(), "yyyy-MM-dd"), // Today as dummy date
         serviceTime: "TBD",
+        loadSize: "small",
       }
     }, {
       onSuccess: () => {
@@ -85,7 +86,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">Email Us</h3>
-                    <p className="text-muted-foreground mb-2">For inquiries and e-Transfers</p>
+                    <p className="text-muted-foreground mb-2">For inquiries and free estimates</p>
                     <a href={`mailto:${email}`} className="font-medium hover:text-primary transition-colors">
                       {email}
                     </a>

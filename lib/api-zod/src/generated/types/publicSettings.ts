@@ -5,8 +5,9 @@
  * Piece of Cake Junk - API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { ListBookingsStatus } from './listBookingsStatus';
 
-export type ListBookingsParams = {
-status?: ListBookingsStatus;
-};
+export interface PublicSettings {
+  businessPhone: string;
+  businessEmail: string;
+  serviceArea: string;
+}

@@ -5,6 +5,7 @@
  * Piece of Cake Junk - API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LoadSize } from './loadSize';
 
 export interface BookingInput {
   /** @minLength 1 */
@@ -16,7 +17,9 @@ export interface BookingInput {
   postalCode?: string;
   serviceDate: string;
   serviceTime: string;
-  serviceId?: number;
+  loadSize: LoadSize;
+  isBusiness?: boolean;
+  businessName?: string;
   notes?: string;
   subscribeToNewsletter?: boolean;
 }

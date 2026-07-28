@@ -1,13 +1,13 @@
-import { useGetDashboardStats, useGetSettings } from "@workspace/api-client-react";
-import { formatCurrency } from "@/lib/utils";
+import { Link } from "wouter";
+import { useGetDashboardStats } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, DollarSign, Calendar, Users, Package, AlertCircle } from "lucide-react";
+import { BarChart, Calendar, Users, Package, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useGetDashboardStats();
-  const { data: settings } = useGetSettings();
 
   if (isLoading || !stats) {
     return (
@@ -16,23 +16,23 @@ export default function Dashboard() {
           <Skeleton className="h-10 w-64 mb-2" />
           <Skeleton className="h-5 w-48" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <Skeleton key={i} className="h-36 rounded-2xl" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-36 rounded-2xl" />)}
         </div>
       </div>
     );
   }
 
   const statCards = [
-    { title: "Total Revenue", value: formatCurrency(stats.totalRevenue), icon: DollarSign, color: "text-green-500", bg: "bg-green-500/10" },
-    { title: "Pending Revenue", value: formatCurrency(stats.pendingRevenue), icon: DollarSign, color: "text-amber-500", bg: "bg-amber-500/10" },
     { title: "Total Bookings", value: stats.totalBookings, icon: Package, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { title: "Bookings Today", value: stats.bookingsToday, icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10" },
-    { title: "Bookings This Week", value: stats.bookingsThisWeek, icon: BarChart, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-    { title: "Pending Jobs", value: stats.pendingBookings, icon: AlertCircle, color: "text-orange-500", bg: "bg-orange-500/10" },
-    { title: "Unpaid Bookings", value: stats.unpaidBookings, icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10" },
-    { title: "Total Subscribers", value: stats.totalSubscribers, icon: Users, color: "text-primary", bg: "bg-primary/10" },
+    { title: "Estimates Today", value: stats.bookingsToday, icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { title: "New This Week", value: stats.bookingsThisWeek, icon: BarChart, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+    { title: "Pending Estimates", value: stats.pendingBookings, icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { title: "Completed Jobs", value: stats.completedBookings, icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
+    { title: "Email Subscribers", value: stats.totalSubscribers, icon: Users, color: "text-primary", bg: "bg-primary/10" },
   ];
+
+  const totalForBars = Math.max(stats.totalBookings, 1);
 
   return (
     <div className="space-y-8">
@@ -41,7 +41,7 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-1">Here's what's happening with your business today.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
@@ -70,7 +70,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle>Job Status Breakdown</CardTitle>
+            <CardTitle>Estimate Status Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -79,35 +79,41 @@ export default function Dashboard() {
                 <span className="font-bold">{stats.pendingBookings}</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${(stats.pendingBookings / stats.totalBookings) * 100}%` }} />
+                <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${(stats.pendingBookings / totalForBars) * 100}%` }} />
               </div>
-              
+
               <div className="flex justify-between items-center pt-2">
                 <span className="text-muted-foreground">Confirmed</span>
                 <span className="font-bold">{stats.confirmedBookings}</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${(stats.confirmedBookings / stats.totalBookings) * 100}%` }} />
+                <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${(stats.confirmedBookings / totalForBars) * 100}%` }} />
               </div>
-              
+
               <div className="flex justify-between items-center pt-2">
                 <span className="text-muted-foreground">Completed</span>
                 <span className="font-bold">{stats.completedBookings}</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(stats.completedBookings / stats.totalBookings) * 100}%` }} />
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(stats.completedBookings / totalForBars) * 100}%` }} />
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-none shadow-sm bg-primary text-primary-foreground">
           <CardContent className="p-8 flex flex-col justify-center h-full">
-            <h3 className="text-xl font-bold mb-2">Interac e-Transfer Link</h3>
-            <p className="opacity-80 mb-6">Customers send payments to this address. Confirm receipt in the Bookings tab.</p>
-            <div className="bg-black/20 p-4 rounded-xl font-mono text-lg text-center break-all select-all">
-              {settings?.etransferEmail ?? "payments@pieceofcakejunk.com"}
-            </div>
+            <h3 className="text-xl font-bold mb-2">Free estimates, booked online</h3>
+            <p className="opacity-80 mb-6">
+              Every booking is a no-obligation in-person estimate. Customers get an instant email
+              confirmation — confirm each visit from the Bookings tab.
+            </p>
+            <Link href="/admin/bookings">
+              <Button variant="secondary" className="rounded-xl font-bold w-fit">
+                Review Pending Estimates
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>

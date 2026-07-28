@@ -28,17 +28,23 @@ export interface ChangePasswordInput {
 }
 
 export interface BusinessSettings {
-  etransferEmail: string;
+  emailFromAddress: string;
   businessPhone: string;
   businessEmail: string;
   serviceArea: string;
 }
 
 export interface BusinessSettingsInput {
-  etransferEmail?: string;
+  emailFromAddress?: string;
   businessPhone?: string;
   businessEmail?: string;
   serviceArea?: string;
+}
+
+export interface PublicSettings {
+  businessPhone: string;
+  businessEmail: string;
+  serviceArea: string;
 }
 
 export interface Service {
@@ -71,6 +77,25 @@ export interface ServicePatch {
   isActive?: boolean;
 }
 
+export type LoadSize = typeof LoadSize[keyof typeof LoadSize];
+
+
+export const LoadSize = {
+  small: 'small',
+  '1/8': '1/8',
+  '1/6': '1/6',
+  '1/4': '1/4',
+  '1/3': '1/3',
+  '3/8': '3/8',
+  '1/2': '1/2',
+  '5/8': '5/8',
+  '2/3': '2/3',
+  '3/4': '3/4',
+  '5/6': '5/6',
+  '7/8': '7/8',
+  full: 'full',
+} as const;
+
 export type BookingStatus = typeof BookingStatus[keyof typeof BookingStatus];
 
 
@@ -79,14 +104,6 @@ export const BookingStatus = {
   confirmed: 'confirmed',
   completed: 'completed',
   cancelled: 'cancelled',
-} as const;
-
-export type BookingPaymentStatus = typeof BookingPaymentStatus[keyof typeof BookingPaymentStatus];
-
-
-export const BookingPaymentStatus = {
-  unpaid: 'unpaid',
-  paid: 'paid',
 } as const;
 
 export interface Booking {
@@ -99,14 +116,11 @@ export interface Booking {
   postalCode?: string;
   serviceDate: string;
   serviceTime: string;
+  loadSize: LoadSize;
+  isBusiness: boolean;
   /** @nullable */
-  serviceId: number | null;
-  /** @nullable */
-  serviceName?: string | null;
+  businessName?: string | null;
   status: BookingStatus;
-  paymentStatus: BookingPaymentStatus;
-  /** @nullable */
-  totalAmount: number | null;
   /** @nullable */
   notes: string | null;
   createdAt: string;
@@ -122,7 +136,9 @@ export interface BookingInput {
   postalCode?: string;
   serviceDate: string;
   serviceTime: string;
-  serviceId?: number;
+  loadSize: LoadSize;
+  isBusiness?: boolean;
+  businessName?: string;
   notes?: string;
   subscribeToNewsletter?: boolean;
 }
@@ -137,18 +153,11 @@ export const BookingPatchStatus = {
   cancelled: 'cancelled',
 } as const;
 
-export type BookingPatchPaymentStatus = typeof BookingPatchPaymentStatus[keyof typeof BookingPatchPaymentStatus];
-
-
-export const BookingPatchPaymentStatus = {
-  unpaid: 'unpaid',
-  paid: 'paid',
-} as const;
-
 export interface BookingPatch {
   status?: BookingPatchStatus;
-  paymentStatus?: BookingPatchPaymentStatus;
-  totalAmount?: number;
+  serviceDate?: string;
+  serviceTime?: string;
+  loadSize?: LoadSize;
   notes?: string;
 }
 
@@ -186,18 +195,13 @@ export interface DashboardStats {
   confirmedBookings: number;
   completedBookings: number;
   cancelledBookings: number;
-  unpaidBookings: number;
-  paidBookings: number;
   totalSubscribers: number;
-  totalRevenue: number;
-  pendingRevenue: number;
   bookingsToday: number;
   bookingsThisWeek: number;
 }
 
 export type ListBookingsParams = {
 status?: ListBookingsStatus;
-paymentStatus?: ListBookingsPaymentStatus;
 };
 
 export type ListBookingsStatus = typeof ListBookingsStatus[keyof typeof ListBookingsStatus];
@@ -208,13 +212,5 @@ export const ListBookingsStatus = {
   confirmed: 'confirmed',
   completed: 'completed',
   cancelled: 'cancelled',
-} as const;
-
-export type ListBookingsPaymentStatus = typeof ListBookingsPaymentStatus[keyof typeof ListBookingsPaymentStatus];
-
-
-export const ListBookingsPaymentStatus = {
-  unpaid: 'unpaid',
-  paid: 'paid',
 } as const;
 

@@ -5,8 +5,8 @@
  * Piece of Cake Junk - API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { BookingPaymentStatus } from './bookingPaymentStatus';
 import type { BookingStatus } from './bookingStatus';
+import type { LoadSize } from './loadSize';
 
 export interface Booking {
   id: number;
@@ -18,14 +18,11 @@ export interface Booking {
   postalCode?: string;
   serviceDate: string;
   serviceTime: string;
+  loadSize: LoadSize;
+  isBusiness: boolean;
   /** @nullable */
-  serviceId: number | null;
-  /** @nullable */
-  serviceName?: string | null;
+  businessName?: string | null;
   status: BookingStatus;
-  paymentStatus: BookingPaymentStatus;
-  /** @nullable */
-  totalAmount: number | null;
   /** @nullable */
   notes: string | null;
   createdAt: string;

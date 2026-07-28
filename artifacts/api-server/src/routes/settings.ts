@@ -6,18 +6,21 @@ import { requireAdmin } from "../middleware/requireAdmin";
 const router: IRouter = Router();
 
 export const SETTINGS_DEFAULTS: Record<string, string> = {
-  etransferEmail: "payments@pieceofcakejunk.com",
+  emailFromAddress: "Piece of Cake Junk <onboarding@resend.dev>",
   businessPhone: "437-775-9626",
-  businessEmail: "payments@pieceofcakejunk.com",
+  businessEmail: "info@pieceofcakejunk.com",
   serviceArea: "Greater Toronto Area",
 };
 
 const BUSINESS_KEYS = [
-  "etransferEmail",
+  "emailFromAddress",
   "businessPhone",
   "businessEmail",
   "serviceArea",
 ] as const;
+
+/** Keys safe to expose to the public site (no email-sending config). */
+const PUBLIC_KEYS = ["businessPhone", "businessEmail", "serviceArea"] as const;
 
 export async function loadBusinessSettings(): Promise<Record<string, string>> {
   const rows = await db.select().from(settingsTable);
@@ -39,7 +42,8 @@ async function upsertSetting(key: string, value: string): Promise<void> {
 }
 
 router.get("/settings/public", async (_req, res): Promise<void> => {
-  res.json(await loadBusinessSettings());
+  const all = await loadBusinessSettings();
+  res.json(Object.fromEntries(PUBLIC_KEYS.map((key) => [key, all[key]])));
 });
 
 router.get("/settings", requireAdmin, async (_req, res): Promise<void> => {

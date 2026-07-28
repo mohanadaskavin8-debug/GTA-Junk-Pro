@@ -80,8 +80,8 @@ export default function Services() {
                   <p className="text-muted-foreground mb-8 flex-1">{service.description}</p>
                   
                   <div className="pt-6 border-t">
-                    <Link href={`/book?service=${service.id}`}>
-                      <Button variant="outline" className="rounded-full w-full">Book This Service</Button>
+                    <Link href="/book">
+                      <Button variant="outline" className="rounded-full w-full">Book Free Estimate</Button>
                     </Link>
                   </div>
                 </motion.div>
@@ -103,7 +103,7 @@ export default function Services() {
             <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-1 bg-border -z-10" />
             
             {[
-              { title: "Book Online", desc: "Select a service and pick a time slot that works for you." },
+              { title: "Book Free Estimate", desc: "Tell us your address, then pick a date and a 2-hour arrival window." },
               { title: "We Arrive", desc: "Our team arrives on time, reviews the items, and provides a final quote." },
               { title: "Junk Removed", desc: "We haul everything away and sweep up the area. Piece of cake." }
             ].map((step, i) => (

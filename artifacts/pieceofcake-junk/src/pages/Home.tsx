@@ -98,7 +98,7 @@ export default function Home() {
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
                 <Link href="/book">
                   <Button size="lg" className="h-14 px-8 text-lg rounded-2xl shadow-xl hover:shadow-primary/30 group">
-                    Book Online Now
+                    Book Free Estimate
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -279,12 +279,12 @@ export default function Home() {
               Ready to clear the clutter?
             </h2>
             <p className="text-xl text-primary-foreground/80 mb-10">
-              Book online in 60 seconds. We'll show up on time, give you a final quote, and make your junk disappear. It's a piece of cake.
+              Book your free estimate in 60 seconds. We'll show up on time, give you a final quote, and make your junk disappear. It's a piece of cake.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/book">
                 <Button size="lg" variant="secondary" className="h-16 px-10 text-lg rounded-2xl shadow-xl shadow-black/20">
-                  Book Online Now
+                  Book Free Estimate
                 </Button>
               </Link>
             </div>

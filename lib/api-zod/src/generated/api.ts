@@ -65,7 +65,7 @@ export const ChangeAdminPasswordResponse = zod.object({
  * @summary Get business settings (admin)
  */
 export const GetSettingsResponse = zod.object({
-  "etransferEmail": zod.string(),
+  "emailFromAddress": zod.string(),
   "businessPhone": zod.string(),
   "businessEmail": zod.string(),
   "serviceArea": zod.string()
@@ -76,14 +76,14 @@ export const GetSettingsResponse = zod.object({
  * @summary Update business settings (admin)
  */
 export const UpdateSettingsBody = zod.object({
-  "etransferEmail": zod.string().optional(),
+  "emailFromAddress": zod.string().optional(),
   "businessPhone": zod.string().optional(),
   "businessEmail": zod.string().optional(),
   "serviceArea": zod.string().optional()
 })
 
 export const UpdateSettingsResponse = zod.object({
-  "etransferEmail": zod.string(),
+  "emailFromAddress": zod.string(),
   "businessPhone": zod.string(),
   "businessEmail": zod.string(),
   "serviceArea": zod.string()
@@ -94,7 +94,6 @@ export const UpdateSettingsResponse = zod.object({
  * @summary Get public business settings (customer-facing)
  */
 export const GetPublicSettingsResponse = zod.object({
-  "etransferEmail": zod.string(),
   "businessPhone": zod.string(),
   "businessEmail": zod.string(),
   "serviceArea": zod.string()
@@ -185,8 +184,7 @@ export const DeleteServiceResponse = zod.void()
  * @summary List all bookings (admin)
  */
 export const ListBookingsQueryParams = zod.object({
-  "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']).optional(),
-  "paymentStatus": zod.enum(['unpaid', 'paid']).optional()
+  "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']).optional()
 })
 
 export const ListBookingsResponseItem = zod.object({
@@ -199,11 +197,10 @@ export const ListBookingsResponseItem = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().nullable(),
-  "serviceName": zod.string().nullish(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-  "paymentStatus": zod.enum(['unpaid', 'paid']),
-  "totalAmount": zod.number().nullable(),
   "notes": zod.string().nullable(),
   "createdAt": zod.string()
 })
@@ -225,7 +222,9 @@ export const CreateBookingBody = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().optional(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean().optional(),
+  "businessName": zod.string().optional(),
   "notes": zod.string().optional(),
   "subscribeToNewsletter": zod.boolean().optional()
 })
@@ -240,11 +239,10 @@ export const CreateBookingResponse = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().nullable(),
-  "serviceName": zod.string().nullish(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-  "paymentStatus": zod.enum(['unpaid', 'paid']),
-  "totalAmount": zod.number().nullable(),
   "notes": zod.string().nullable(),
   "createdAt": zod.string()
 })
@@ -263,11 +261,10 @@ export const ListUpcomingBookingsResponseItem = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().nullable(),
-  "serviceName": zod.string().nullish(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-  "paymentStatus": zod.enum(['unpaid', 'paid']),
-  "totalAmount": zod.number().nullable(),
   "notes": zod.string().nullable(),
   "createdAt": zod.string()
 })
@@ -291,18 +288,17 @@ export const GetBookingResponse = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().nullable(),
-  "serviceName": zod.string().nullish(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-  "paymentStatus": zod.enum(['unpaid', 'paid']),
-  "totalAmount": zod.number().nullable(),
   "notes": zod.string().nullable(),
   "createdAt": zod.string()
 })
 
 
 /**
- * @summary Update booking status or payment (admin)
+ * @summary Update a booking (admin)
  */
 export const UpdateBookingParams = zod.object({
   "id": zod.coerce.number()
@@ -310,8 +306,9 @@ export const UpdateBookingParams = zod.object({
 
 export const UpdateBookingBody = zod.object({
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']).optional(),
-  "paymentStatus": zod.enum(['unpaid', 'paid']).optional(),
-  "totalAmount": zod.number().optional(),
+  "serviceDate": zod.string().optional(),
+  "serviceTime": zod.string().optional(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']).optional(),
   "notes": zod.string().optional()
 })
 
@@ -325,11 +322,10 @@ export const UpdateBookingResponse = zod.object({
   "postalCode": zod.string().optional(),
   "serviceDate": zod.string(),
   "serviceTime": zod.string(),
-  "serviceId": zod.number().nullable(),
-  "serviceName": zod.string().nullish(),
+  "loadSize": zod.enum(['small', '1/8', '1/6', '1/4', '1/3', '3/8', '1/2', '5/8', '2/3', '3/4', '5/6', '7/8', 'full']),
+  "isBusiness": zod.boolean(),
+  "businessName": zod.string().nullish(),
   "status": zod.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-  "paymentStatus": zod.enum(['unpaid', 'paid']),
-  "totalAmount": zod.number().nullable(),
   "notes": zod.string().nullable(),
   "createdAt": zod.string()
 })
@@ -426,11 +422,7 @@ export const GetDashboardStatsResponse = zod.object({
   "confirmedBookings": zod.number(),
   "completedBookings": zod.number(),
   "cancelledBookings": zod.number(),
-  "unpaidBookings": zod.number(),
-  "paidBookings": zod.number(),
   "totalSubscribers": zod.number(),
-  "totalRevenue": zod.number(),
-  "pendingRevenue": zod.number(),
   "bookingsToday": zod.number(),
   "bookingsThisWeek": zod.number()
 })

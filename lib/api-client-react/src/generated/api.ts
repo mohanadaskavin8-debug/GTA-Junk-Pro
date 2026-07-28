@@ -34,6 +34,7 @@ import type {
   ErrorResponse,
   HealthStatus,
   ListBookingsParams,
+  PublicSettings,
   Service,
   ServiceInput,
   ServicePatch,
@@ -594,9 +595,9 @@ export const getGetPublicSettingsUrl = () => {
 /**
  * @summary Get public business settings (customer-facing)
  */
-export const getPublicSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<BusinessSettings> => {
+export const getPublicSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<PublicSettings> => {
 
-  return customFetch<BusinessSettings>(getGetPublicSettingsUrl(),
+  return customFetch<PublicSettings>(getGetPublicSettingsUrl(),
   {
     ...options,
     method: 'GET'
@@ -1269,7 +1270,7 @@ export const getUpdateBookingUrl = (id: number,) => {
 }
 
 /**
- * @summary Update booking status or payment (admin)
+ * @summary Update a booking (admin)
  */
 export const updateBooking = async (id: number,
     bookingPatch: BookingPatch, options?: Parameters<typeof customFetch>[1]): Promise<Booking> => {
@@ -1319,7 +1320,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UpdateBookingMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Update booking status or payment (admin)
+ * @summary Update a booking (admin)
  */
 export const useUpdateBooking = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBooking>>, TError,{id: number;data: BodyType<BookingPatch>}, TContext>, request?: SecondParameter<typeof customFetch>}
