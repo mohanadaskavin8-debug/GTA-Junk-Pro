@@ -94,6 +94,7 @@ export default function Book() {
   const [step, setStep] = useState(1);
   const [isSuccess, setIsSuccess] = useState(false);
   const [bookingRef, setBookingRef] = useState("");
+  const [pastDateError, setPastDateError] = useState(false);
 
   const createBooking = useCreateBooking();
   const createSubscriber = useCreateSubscriber();
@@ -360,12 +361,38 @@ export default function Book() {
                             <Calendar
                               mode="single"
                               selected={field.value}
-                              onSelect={field.onChange}
+                              onSelect={(date) => {
+                                setPastDateError(false);
+                                field.onChange(date);
+                              }}
+                              onDayClick={(date) => {
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                if (date < today) {
+                                  setPastDateError(true);
+                                } else {
+                                  setPastDateError(false);
+                                }
+                              }}
                               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                               className="rounded-2xl border shadow-sm p-4"
+                              classNames={{
+                                day_selected:
+                                  "bg-yellow-400 text-gray-900 font-bold rounded-full hover:bg-yellow-400 hover:text-gray-900 focus:bg-yellow-400 focus:text-gray-900",
+                                day_today:
+                                  "border-2 border-primary rounded-full font-semibold text-primary",
+                                day_disabled:
+                                  "text-muted-foreground opacity-30 cursor-not-allowed",
+                              }}
                             />
                           </FormControl>
-                          <FormMessage />
+                          {pastDateError ? (
+                            <p className="text-sm font-medium text-destructive flex items-center gap-1.5 mt-1">
+                              That date has already passed — please pick an upcoming date.
+                            </p>
+                          ) : (
+                            <FormMessage />
+                          )}
                         </FormItem>
                       )}
                     />
