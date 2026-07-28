@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Piece of Cake Junk"
+version = "1.0.0"
+id = "artifacts/pieceofcake-junk"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25461
+
+[services.development]
+run = "pnpm --filter @workspace/pieceofcake-junk run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pieceofcake-junk", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/pieceofcake-junk/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25461"
+BASE_PATH = "/"

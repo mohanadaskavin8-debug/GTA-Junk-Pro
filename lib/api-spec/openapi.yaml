@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Piece of Cake Junk - API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: services
+    description: Junk removal service offerings
+  - name: bookings
+    description: Customer booking management
+  - name: subscribers
+    description: Email subscriber management
+  - name: emails
+    description: Email campaign management
+  - name: dashboard
+    description: Admin dashboard stats
+  - name: auth
+    description: Admin authentication
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +36,650 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Auth ──────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCredentials"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: adminLogout
+      tags: [auth]
+      summary: Admin logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+
+  /auth/me:
+    get:
+      operationId: getAuthMe
+      tags: [auth]
+      summary: Get current auth status
+      responses:
+        "200":
+          description: Auth status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+
+  # ── Services ──────────────────────────────────────────────────────────────
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List all service offerings
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create a new service (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /services/{id}:
+    patch:
+      operationId: updateService
+      tags: [services]
+      summary: Update a service (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicePatch"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete a service (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Bookings ──────────────────────────────────────────────────────────────
+  /bookings:
+    get:
+      operationId: listBookings
+      tags: [bookings]
+      summary: List all bookings (admin)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, completed, cancelled]
+        - name: paymentStatus
+          in: query
+          schema:
+            type: string
+            enum: [unpaid, paid]
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a new booking (customer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/upcoming:
+    get:
+      operationId: listUpcomingBookings
+      tags: [bookings]
+      summary: List upcoming bookings (next 7 days)
+      responses:
+        "200":
+          description: Upcoming bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get a single booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      operationId: updateBooking
+      tags: [bookings]
+      summary: Update booking status or payment (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingPatch"
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      operationId: deleteBooking
+      tags: [bookings]
+      summary: Delete a booking (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Subscribers ───────────────────────────────────────────────────────────
+  /subscribers:
+    get:
+      operationId: listSubscribers
+      tags: [subscribers]
+      summary: List all email subscribers (admin)
+      responses:
+        "200":
+          description: List of subscribers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscriber"
+
+    post:
+      operationId: createSubscriber
+      tags: [subscribers]
+      summary: Subscribe to newsletter (customer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriberInput"
+      responses:
+        "201":
+          description: Subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscriber"
+        "409":
+          description: Already subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /subscribers/{id}:
+    delete:
+      operationId: deleteSubscriber
+      tags: [subscribers]
+      summary: Remove a subscriber (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Removed
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Email Campaigns ───────────────────────────────────────────────────────
+  /emails:
+    get:
+      operationId: listEmailCampaigns
+      tags: [emails]
+      summary: List past email campaigns (admin)
+      responses:
+        "200":
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmailCampaign"
+
+  /emails/send:
+    post:
+      operationId: sendEmailCampaign
+      tags: [emails]
+      summary: Send bulk email campaign to all subscribers (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailCampaignInput"
+      responses:
+        "201":
+          description: Campaign sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailCampaign"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Dashboard ─────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Admin dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    # ── Auth ────────────────────────────────────────────────────────────────
+    AdminCredentials:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    AuthStatus:
+      type: object
+      required: [isAdmin]
+      properties:
+        isAdmin:
+          type: boolean
+
+    # ── Services ────────────────────────────────────────────────────────────
+    Service:
+      type: object
+      required: [id, name, description, price, unit, isActive, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        iconName:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    ServiceInput:
+      type: object
+      required: [name, description, price, unit]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        iconName:
+          type: string
+
+    ServicePatch:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        iconName:
+          type: string
+        isActive:
+          type: boolean
+
+    # ── Bookings ────────────────────────────────────────────────────────────
+    Booking:
+      type: object
+      required: [id, customerName, customerEmail, customerPhone, address, serviceDate, serviceTime, serviceId, status, paymentStatus, totalAmount, notes, createdAt]
+      properties:
+        id:
+          type: number
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        customerPhone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        serviceDate:
+          type: string
+        serviceTime:
+          type: string
+        serviceId:
+          type: ["number", "null"]
+        serviceName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        paymentStatus:
+          type: string
+          enum: [unpaid, paid]
+        totalAmount:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BookingInput:
+      type: object
+      required: [customerName, customerEmail, customerPhone, address, serviceDate, serviceTime]
+      properties:
+        customerName:
+          type: string
+          minLength: 1
+        customerEmail:
+          type: string
+        customerPhone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        serviceDate:
+          type: string
+        serviceTime:
+          type: string
+        serviceId:
+          type: number
+        notes:
+          type: string
+        subscribeToNewsletter:
+          type: boolean
+
+    BookingPatch:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        paymentStatus:
+          type: string
+          enum: [unpaid, paid]
+        totalAmount:
+          type: number
+        notes:
+          type: string
+
+    # ── Subscribers ─────────────────────────────────────────────────────────
+    Subscriber:
+      type: object
+      required: [id, email, name, createdAt]
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        name:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SubscriberInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+
+    # ── Email Campaigns ──────────────────────────────────────────────────────
+    EmailCampaign:
+      type: object
+      required: [id, subject, body, recipientCount, sentAt]
+      properties:
+        id:
+          type: number
+        subject:
+          type: string
+        body:
+          type: string
+        recipientCount:
+          type: number
+        sentAt:
+          type: string
+
+    EmailCampaignInput:
+      type: object
+      required: [subject, body]
+      properties:
+        subject:
+          type: string
+          minLength: 1
+        body:
+          type: string
+          minLength: 1
+
+    # ── Dashboard ────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalBookings, pendingBookings, confirmedBookings, completedBookings, cancelledBookings, unpaidBookings, paidBookings, totalSubscribers, totalRevenue, pendingRevenue, bookingsToday, bookingsThisWeek]
+      properties:
+        totalBookings:
+          type: number
+        pendingBookings:
+          type: number
+        confirmedBookings:
+          type: number
+        completedBookings:
+          type: number
+        cancelledBookings:
+          type: number
+        unpaidBookings:
+          type: number
+        paidBookings:
+          type: number
+        totalSubscribers:
+          type: number
+        totalRevenue:
+          type: number
+        pendingRevenue:
+          type: number
+        bookingsToday:
+          type: number
+        bookingsThisWeek:
+          type: number
