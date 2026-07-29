@@ -10,8 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Assets
 import truckImg from "@assets/image_1785195883268.png";
-import adImg from "@assets/image_1785195842710.png";
-import flyerImg from "@assets/image_1785195864625.png";
+import adImg from "@assets/Screenshot_2026-07-29_at_4.08.35_AM_1785312543894.png";
+import flyerImg from "@assets/Screenshot_2026-07-29_at_4.08.43_AM_1785312543894.png";
 import heroBg from "@assets/hero-bg.jpg";
 import { useRef } from "react";
 
