@@ -16,6 +16,39 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const serviceArea = settings?.serviceArea ?? "Greater Toronto Area";
 
   useEffect(() => {
+    const seoByRoute: Record<string, { title: string; description: string }> = {
+      "/": {
+        title: "Junk Removal in the GTA | Piece of Cake Junk Removal",
+        description: "Fast, friendly junk removal across Toronto and the GTA. Book a free estimate for furniture, appliances, renovation debris, cleanouts, and more.",
+      },
+      "/services": {
+        title: "Junk Removal Services in the GTA | Piece of Cake",
+        description: "Explore junk removal, furniture and appliance hauling, renovation debris removal, and property cleanout services across Toronto and the GTA.",
+      },
+      "/book": {
+        title: "Book Junk Removal in the GTA | Free Estimate",
+        description: "Book a fast, no-obligation junk removal estimate in Toronto or the GTA. Choose your service, pickup size, date, and arrival window online.",
+      },
+      "/contact": {
+        title: "Contact Piece of Cake Junk Removal | GTA",
+        description: "Contact Piece of Cake Junk Removal for fast, friendly service across Toronto and the Greater Toronto Area.",
+      },
+    };
+    const seo = seoByRoute[location] ?? seoByRoute["/"];
+    const canonicalPath = location === "/" ? "/" : location.split("?")[0];
+    const canonicalUrl = `https://pieceofcakejunk.com${canonicalPath}`;
+
+    document.title = seo.title;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", seo.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonicalUrl);
+    document.querySelector('meta[property="og:title"]')?.setAttribute("content", seo.title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content", seo.description);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonicalUrl);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", seo.title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", seo.description);
+  }, [location]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };

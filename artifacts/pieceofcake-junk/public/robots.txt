@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://pieceofcakejunk.com/sitemap.xml
