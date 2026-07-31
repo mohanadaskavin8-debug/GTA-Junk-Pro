@@ -85,6 +85,17 @@ export function BeforeAfterSlider({ beforeImage, afterImage, className }: Before
           <ArrowLeftRight className="w-5 h-5 text-primary" />
         </div>
       </div>
+
+      {/* Hint */}
+      <motion.div
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-4 py-2 rounded-full pointer-events-none z-20 whitespace-nowrap"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+      >
+        <ArrowLeftRight className="w-3.5 h-3.5" />
+        Drag to reveal full picture
+      </motion.div>
     </div>
   );
 }
