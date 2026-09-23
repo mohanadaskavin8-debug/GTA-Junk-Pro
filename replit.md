@@ -1,45 +1,77 @@
-# [Project name]
+# Piece of Cake Junk Removal — Business Management Platform
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A complete digital platform built for **Piece of Cake Junk Removal**, combining a customer-facing website with a custom business management system.
 
-## Run & Operate
+The platform centralizes customer bookings, estimates, services, availability, customer data, authentication, and email communication into one system.
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+## ✨ Features
 
-## Stack
+### 🌐 Customer Website
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+* Service and junk removal information
+* Online booking and estimate experience
+* Responsive design across desktop and mobile
+* Clear calls-to-action and customer navigation
+* Professional business-focused UI/UX
 
-## Where things live
+### 📊 Admin Dashboard
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+* Manage customer bookings
+* Manage estimates and requests
+* Manage available services
+* Manage business availability
+* View and manage customer information
+* Centralized administrative workflow
 
-## Architecture decisions
+### 🔐 Authentication & Security
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+* Secure administrator authentication
+* Role-based access to business management features
+* **Clerk** integration for authentication and account management
 
-## Product
+### 📧 Email System
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+* Automated transactional emails
+* Customer communication workflows
+* Promotional and marketing campaigns
+* **Resend** integration for email delivery
 
-## User preferences
+## 🎯 Project Goals
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+The goal was to build more than a traditional business website.
 
-## Gotchas
+The platform connects the **customer-facing experience with internal business operations**, allowing Piece of Cake Junk Removal to manage important workflows from a centralized administrative system.
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+The project focused on:
 
-## Pointers
+* Automation
+* Operational efficiency
+* Customer experience
+* Secure administration
+* Responsive UI/UX
+* Scalable business workflows
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+## 🛠️ Technology
+
+* **Frontend:** Modern responsive web application
+* **Language:** TypeScript
+* **Authentication:** Clerk
+* **Email:** Resend
+* **Package Manager:** pnpm
+* **Development Platform:** Replit
+
+## 🌐 Live Website
+
+**https://pieceofcakejunk.com**
+
+## 💻 Development
+
+I designed and developed the platform from concept through deployment, working across the customer-facing website and internal administrative system.
+
+The project involved building custom business workflows, integrating third-party services, implementing authentication, developing administrative functionality, and creating automated email communication.
+
+This project provided hands-on experience building a **real-world full-stack business platform** around the operational needs of an actual company.
+
+---
+
+**Built by Mohanadas Kavin**
